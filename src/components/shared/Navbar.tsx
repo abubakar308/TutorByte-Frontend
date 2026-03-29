@@ -34,8 +34,8 @@ export default function Navbar({ user }: NavbarProps) {
           <button onClick={toggleTheme} className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border/60 bg-card text-muted-foreground transition hover:border-primary/30 hover:text-primary hover:bg-primary/5">{darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}</button>
           {!user ? (
             <div className="flex items-center gap-2 ml-1">
-              <Link href="/auth/login" className="rounded-xl px-4 py-2 text-sm font-medium text-foreground/80 transition hover:text-primary hover:bg-primary/5">Sign in</Link>
-              <Link href="/auth/register" className="rounded-xl bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 transition hover:bg-primary/90 hover:-translate-y-0.5">Get started</Link>
+              <Link href="/login" className="rounded-xl px-4 py-2 text-sm font-medium text-foreground/80 transition hover:text-primary hover:bg-primary/5">Sign in</Link>
+              <Link href="/register" className="rounded-xl bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 transition hover:bg-primary/90 hover:-translate-y-0.5">Get started</Link>
             </div>
           ) : (
             <div className="flex items-center gap-2 ml-1">
