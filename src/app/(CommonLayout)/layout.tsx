@@ -1,3 +1,6 @@
+import Footer from "@/components/shared/Footer";
+import Navbar from "@/components/shared/Navbar";
+
 export default async function CommonLayout({
   children,
 }: Readonly<{
@@ -7,7 +10,9 @@ export default async function CommonLayout({
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
+        <Navbar />
       <main className="flex-1">{children}</main>
+      <Footer />
     </div>
   );
 }
