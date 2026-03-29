@@ -99,7 +99,6 @@ export const loginUser = async (
 
     const result: ApiResponse<LoginResponseData> = await res.json();
 
-    console.log("result", result);
     if (result.success && result.data?.accessToken) {
       const cookieStore = await cookies();
 
