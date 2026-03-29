@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { GraduationCap } from "lucide-react";
 
 export default function Footer() {
@@ -28,10 +29,10 @@ export default function Footer() {
             Platform
           </h4>
           <ul className="mt-5 space-y-3 text-sm text-muted-foreground">
-            <li><a href="#" className="hover:text-primary">Find Tutors</a></li>
-            <li><a href="#" className="hover:text-primary">Become a Tutor</a></li>
-            <li><a href="#" className="hover:text-primary">Pricing</a></li>
-            <li><a href="#" className="hover:text-primary">Reviews</a></li>
+            <li><Link href="/tutors" className="hover:text-primary transition-colors">Find Tutors</Link></li>
+            <li><Link href="/register?role=tutor" className="hover:text-primary transition-colors">Become a Tutor</Link></li>
+            <li><Link href="/#how-it-works" className="hover:text-primary transition-colors">How It Works</Link></li>
+            <li><Link href="/#reviews" className="hover:text-primary transition-colors">Reviews</Link></li>
           </ul>
         </div>
 
@@ -40,10 +41,10 @@ export default function Footer() {
             Company
           </h4>
           <ul className="mt-5 space-y-3 text-sm text-muted-foreground">
-            <li><a href="#" className="hover:text-primary">About Us</a></li>
-            <li><a href="#" className="hover:text-primary">Contact</a></li>
-            <li><a href="#" className="hover:text-primary">Privacy Policy</a></li>
-            <li><a href="#" className="hover:text-primary">Terms & Conditions</a></li>
+            <li><Link href="/about" className="hover:text-primary transition-colors">About Us</Link></li>
+            <li><Link href="/contact" className="hover:text-primary transition-colors">Contact</Link></li>
+            <li><Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
+            <li><Link href="/terms" className="hover:text-primary transition-colors">Terms & Conditions</Link></li>
           </ul>
         </div>
 
@@ -57,7 +58,7 @@ export default function Footer() {
           <div className="mt-4 flex gap-3">
             <input
               placeholder="Enter your email"
-              className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none"
+              className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none focus:border-primary/50"
             />
             <button className="rounded-2xl bg-primary px-5 py-3 font-medium text-primary-foreground transition hover:bg-primary/90">
               Join
@@ -70,12 +71,12 @@ export default function Footer() {
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-6 text-sm text-muted-foreground sm:px-6 md:flex-row lg:px-8">
           <p>© 2026 TutorByte. All rights reserved.</p>
           <div className="flex items-center gap-6">
-            <a href="#" className="hover:text-primary">Facebook</a>
-            <a href="#" className="hover:text-primary">LinkedIn</a>
-            <a href="#" className="hover:text-primary">Twitter</a>
+            <a href="#" className="hover:text-primary transition-colors">Facebook</a>
+            <a href="#" className="hover:text-primary transition-colors">LinkedIn</a>
+            <a href="#" className="hover:text-primary transition-colors">Twitter</a>
           </div>
         </div>
       </div>
     </footer>
   );
-}
+}
