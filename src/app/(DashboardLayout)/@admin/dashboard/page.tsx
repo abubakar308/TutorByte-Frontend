@@ -84,7 +84,7 @@ export default function AdminDashboard() {
         </nav>
 
         <div className="border-t border-border p-3">
-          <button onClick={() => { localStorage.clear(); window.location.href = "/"; }}
+          <button onClick={() => {  }}
             className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/20 transition">
             <LogOut className="h-4 w-4 shrink-0" />
             {sideOpen && <span>Sign out</span>}
@@ -108,7 +108,7 @@ export default function AdminDashboard() {
           <div className="flex items-center gap-2">
             <div className="hidden sm:flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/20 px-3 py-1.5 text-xs font-semibold text-amber-700 dark:text-amber-400">
               <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
-              7 pending tutor approvals
+             {}
             </div>
             <button className="relative inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border text-muted-foreground hover:bg-muted transition">
               <Bell className="h-4 w-4" />

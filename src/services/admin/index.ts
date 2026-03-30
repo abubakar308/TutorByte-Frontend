@@ -1,21 +1,9 @@
 "use server";
 
-import { apiGet, apiPost, apiRequest, apiPatch, apiDelete } from "../api/base";
+import { apiRequest } from "../api/base";
 import { ApiResponse } from "../api/types";
-import { requireRole } from "../auth";
+import { requireRole } from "@/services/auth";
 
-function createQuery(params: Record<string, string | number | boolean | undefined>) {
-  const searchParams = new URLSearchParams();
-
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null) {
-      searchParams.append(key, String(value));
-    }
-  });
-
-  const queryString = searchParams.toString();
-  return queryString ? `?${queryString}` : "";
-}
 
 // ============ INTERFACES ============
 
@@ -85,19 +73,46 @@ export interface AdminLogsResponse {
 
 export interface AdminUsersResponse {
   data: AdminUser[];
+  filter?: {
+    search: string;
+    role: string;
+    status: string;
+  };
   total: number;
-  page: number;
-  limit: number;
+  page?: number;
+  limit?: number;
 }
 
 // ============ DASHBOARD & STATS ============
 
 export const getAdminDashboardStats = async (): Promise<ApiResponse<AdminDashboardStats>> => {
   await requireRole("ADMIN");
-  return apiGet<AdminDashboardStats>("/admin/dashboard-stats");
+  return apiRequest<AdminDashboardStats>("/admin/dashboard-stats", {
+    method: "GET",
+  });
 };
 
 // ============ USER MANAGEMENT (CRUD) ============
+
+// export async function getAdminUsers(
+//   page = 1,
+//   limit = 10,
+//   search = "",
+//   role?: string,
+//   status?: string
+// ): Promise<ApiResponse<AdminUsersResponse>> {
+//   await requireRole("ADMIN");
+//   const params = new URLSearchParams();
+//   params.append("page", String(page));
+//   params.append("limit", String(limit));
+//   if (search) params.append("search", search);
+//   if (role) params.append("role", role);
+//   if (status) params.append("status", status);
+//   const query = params.toString() ? `?${params.toString()}` : "";
+//   return apiRequest<AdminUsersResponse>(`/admin/users${query}`, {
+//     method: "GET",
+//   });
+// }
 
 export async function getAdminUsers(
   page = 1,
@@ -105,17 +120,28 @@ export async function getAdminUsers(
   search = "",
   role?: string,
   status?: string
-): Promise<ApiResponse<AdminUsersResponse>> {
+): Promise<ApiResponse<AdminUser[]>> {
   await requireRole("ADMIN");
-  const query = createQuery({ page, limit, search, role, status });
-  return apiRequest<AdminUsersResponse>(`/admin/users${query}`, {
+
+  const params = new URLSearchParams();
+  params.append("page", String(page));
+  params.append("limit", String(limit));
+  if (search) params.append("search", search);
+  if (role) params.append("role", role);
+  if (status) params.append("status", status);
+
+  const query = params.toString() ? `?${params.toString()}` : "";
+
+  return apiRequest<AdminUser[]>(`/admin/users${query}`, {
     method: "GET",
   });
 }
 
 export const getUserById = async (userId: string): Promise<ApiResponse<AdminUser>> => {
   await requireRole("ADMIN");
-  return apiGet<AdminUser>(`/admin/users/${userId}`);
+  return apiRequest<AdminUser>(`/admin/users/${userId}`, {
+    method: "GET",
+  });
 };
 
 export const updateUser = async (
@@ -123,25 +149,17 @@ export const updateUser = async (
   data: Partial<AdminUser>
 ): Promise<ApiResponse<AdminUser>> => {
   await requireRole("ADMIN");
-  return apiPatch<AdminUser>(
+  return apiRequest<AdminUser>(
     `/admin/users/${userId}`,
-    data
+    { method: "PATCH", body: JSON.stringify(data) }
   );
 };
 
 export const deleteUser = async (userId: string): Promise<ApiResponse> => {
   await requireRole("ADMIN");
-  return apiDelete(`/admin/users/${userId}`);
-};
-
-export const blockUser = async (userId: string): Promise<ApiResponse> => {
-  await requireRole("ADMIN");
-  return apiPost(`/admin/users/${userId}/block`, {});
-};
-
-export const unblockUser = async (userId: string): Promise<ApiResponse> => {
-  await requireRole("ADMIN");
-  return apiPost(`/admin/users/${userId}/unblock`, {});
+  return apiRequest(`/admin/users/${userId}`, {
+    method: "DELETE",
+  });
 };
 
 export const changeUserStatus = async (
@@ -149,7 +167,10 @@ export const changeUserStatus = async (
   status: "ACTIVE" | "BLOCKED"
 ): Promise<ApiResponse> => {
   await requireRole("ADMIN");
-  return apiPatch(`/admin/users/${userId}/status`, { status });
+  return apiRequest(`/admin/users/${userId}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
 };
 
 // ============ TUTOR MANAGEMENT (CRUD) ============
@@ -161,7 +182,12 @@ export async function getAdminTutors(
   status?: "PENDING" | "APPROVED" | "REJECTED"
 ): Promise<ApiResponse<{ data: AdminTutor[]; total: number }>> {
   await requireRole("ADMIN");
-  const query = createQuery({ page, limit, search, status });
+  const params = new URLSearchParams();
+  params.append("page", String(page));
+  params.append("limit", String(limit));
+  if (search) params.append("search", search);
+  if (status) params.append("status", status);
+  const query = params.toString() ? `?${params.toString()}` : "";
   return apiRequest(`/admin/tutors${query}`, {
     method: "GET",
   });
@@ -169,25 +195,25 @@ export async function getAdminTutors(
 
 export const getTutorById = async (tutorId: string): Promise<ApiResponse<AdminTutor>> => {
   await requireRole("ADMIN");
-  return apiGet<AdminTutor>(`/admin/tutors/${tutorId}`);
+  return apiRequest<AdminTutor>(`/admin/tutors/${tutorId}`, {
+    method: "GET",
+  });
 };
 
 export const approveTutor = async (userId: string): Promise<ApiResponse> => {
   await requireRole("ADMIN");
-  return apiPost(`/admin/tutors/${userId}/approve`, {});
+  return apiRequest(`/admin/tutors/${userId}/approve`, {
+    method: "PATCH",
+    body: JSON.stringify({}),
+  });
 };
 
 export const rejectTutor = async (userId: string): Promise<ApiResponse> => {
   await requireRole("ADMIN");
-  return apiPost(`/admin/tutors/${userId}/reject`, {});
-};
-
-export const updateTutorStatus = async (
-  tutorId: string,
-  status: "PENDING" | "APPROVED" | "REJECTED"
-): Promise<ApiResponse> => {
-  await requireRole("ADMIN");
-  return apiPatch(`/admin/tutors/${tutorId}/status`, { status });
+  return apiRequest(`/admin/tutors/${userId}/reject`, {
+    method: "PATCH",
+    body: JSON.stringify({}),
+  });
 };
 
 export const updateTutor = async (
@@ -195,7 +221,10 @@ export const updateTutor = async (
   data: Partial<AdminTutor>
 ): Promise<ApiResponse> => {
   await requireRole("ADMIN");
-  return apiPatch(`/admin/tutors/${tutorId}`, data);
+  return apiRequest(`/admin/tutors/${tutorId}`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
 };
 
 // ============ PAYMENT MANAGEMENT (CRUD) ============
@@ -208,9 +237,16 @@ export const getAdminPayments = async (
   endDate?: string
 ): Promise<ApiResponse<{ data: AdminPayment[]; total: number }>> => {
   await requireRole("ADMIN");
-  const query = createQuery({ page, limit, status, startDate, endDate });
-  const result = await apiGet<AdminPayment[] | { data: AdminPayment[]; total: number }>(
-    `/admin/payments${query}`
+  const params = new URLSearchParams();
+  params.append("page", String(page));
+  params.append("limit", String(limit));
+  if (status) params.append("status", status);
+  if (startDate) params.append("startDate", startDate);
+  if (endDate) params.append("endDate", endDate);
+  const query = params.toString() ? `?${params.toString()}` : "";
+  const result = await apiRequest<AdminPayment[] | { data: AdminPayment[]; total: number }>(
+    `/admin/payments${query}`,
+    { method: "GET" }
   );
 
   if (!result.success || !result.data) {
@@ -241,12 +277,17 @@ export const getAdminPayments = async (
 
 export const getPaymentById = async (paymentId: string): Promise<ApiResponse<AdminPayment>> => {
   await requireRole("ADMIN");
-  return apiGet<AdminPayment>(`/admin/payments/${paymentId}`);
+  return apiRequest<AdminPayment>(`/admin/payments/${paymentId}`, {
+    method: "GET",
+  });
 };
 
 export const refundPayment = async (paymentId: string, reason?: string): Promise<ApiResponse> => {
   await requireRole("ADMIN");
-  return apiPost(`/admin/payments/${paymentId}/refund`, { reason });
+  return apiRequest(`/admin/payments/${paymentId}/refund`, {
+    method: "POST",
+    body: JSON.stringify({ reason }),
+  });
 };
 
 export const updatePaymentStatus = async (
@@ -254,7 +295,10 @@ export const updatePaymentStatus = async (
   status: "PAID" | "REFUNDED" | "PENDING"
 ): Promise<ApiResponse> => {
   await requireRole("ADMIN");
-  return apiPatch(`/admin/payments/${paymentId}/status`, { status });
+  return apiRequest(`/admin/payments/${paymentId}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
 };
 
 // ============ BOOKING MANAGEMENT (CRUD) ============
@@ -267,7 +311,13 @@ export async function getAdminBookings(
   studentId?: string
 ): Promise<ApiResponse<{ data: AdminBooking[]; total: number }>> {
   await requireRole("ADMIN");
-  const query = createQuery({ page, limit, status, tutorId, studentId });
+  const params = new URLSearchParams();
+  params.append("page", String(page));
+  params.append("limit", String(limit));
+  if (status) params.append("status", status);
+  if (tutorId) params.append("tutorId", tutorId);
+  if (studentId) params.append("studentId", studentId);
+  const query = params.toString() ? `?${params.toString()}` : "";
   return apiRequest(`/admin/bookings${query}`, {
     method: "GET",
   });
@@ -275,7 +325,9 @@ export async function getAdminBookings(
 
 export const getBookingById = async (bookingId: string): Promise<ApiResponse<AdminBooking>> => {
   await requireRole("ADMIN");
-  return apiGet<AdminBooking>(`/admin/bookings/${bookingId}`);
+  return apiRequest<AdminBooking>(`/admin/bookings/${bookingId}`, {
+    method: "GET",
+  });
 };
 
 export const updateBooking = async (
@@ -283,17 +335,25 @@ export const updateBooking = async (
   data: Partial<AdminBooking>
 ): Promise<ApiResponse> => {
   await requireRole("ADMIN");
-  return apiPatch(`/admin/bookings/${bookingId}`, data);
+  return apiRequest(`/admin/bookings/${bookingId}`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
 };
 
 export const cancelBooking = async (bookingId: string, reason?: string): Promise<ApiResponse> => {
   await requireRole("ADMIN");
-  return apiPost(`/admin/bookings/${bookingId}/cancel`, { reason });
+  return apiRequest(`/admin/bookings/${bookingId}/cancel`, {
+    method: "POST",
+    body: JSON.stringify({ reason }),
+  });
 };
 
 export const deleteBooking = async (bookingId: string): Promise<ApiResponse> => {
   await requireRole("ADMIN");
-  return apiDelete(`/admin/bookings/${bookingId}`);
+  return apiRequest(`/admin/bookings/${bookingId}`, {
+    method: "DELETE",
+  });
 };
 
 // ============ LOGS & ACTIVITY ============
@@ -305,8 +365,15 @@ export const getAdminLogs = async (
   action?: string
 ): Promise<ApiResponse<AdminLogsResponse>> => {
   await requireRole("ADMIN");
-  const query = createQuery({ page, limit, userId, action });
-  return apiGet<AdminLogsResponse>(`/admin/logs${query}`);
+  const params = new URLSearchParams();
+  params.append("page", String(page));
+  params.append("limit", String(limit));
+  if (userId) params.append("userId", userId);
+  if (action) params.append("action", action);
+  const query = params.toString() ? `?${params.toString()}` : "";
+  return apiRequest<AdminLogsResponse>(`/admin/logs${query}`, {
+    method: "GET",
+  });
 };
 
 export const getActivityLog = async (
@@ -314,28 +381,45 @@ export const getActivityLog = async (
   limit = 20
 ): Promise<ApiResponse<{ data: unknown[]; total: number }>> => {
   await requireRole("ADMIN");
-  const query = createQuery({ page, limit });
-  return apiGet(`/admin/activity${query}`);
+  const params = new URLSearchParams();
+  params.append("page", String(page));
+  params.append("limit", String(limit));
+  const query = params.toString() ? `?${params.toString()}` : "";
+  return apiRequest(`/admin/activity${query}`, {
+    method: "GET",
+  });
 };
 
 // ============ BULK OPERATIONS ============
 
 export const bulkBlockUsers = async (userIds: string[]): Promise<ApiResponse> => {
   await requireRole("ADMIN");
-  return apiPost(`/admin/users/bulk/block`, { userIds });
+  return apiRequest(`/admin/users/bulk/block`, {
+    method: "POST",
+    body: JSON.stringify({ userIds }),
+  });
 };
 
 export const bulkUnblockUsers = async (userIds: string[]): Promise<ApiResponse> => {
   await requireRole("ADMIN");
-  return apiPost(`/admin/users/bulk/unblock`, { userIds });
+  return apiRequest(`/admin/users/bulk/unblock`, {
+    method: "POST",
+    body: JSON.stringify({ userIds }),
+  });
 };
 
 export const bulkApproveTutors = async (tutorIds: string[]): Promise<ApiResponse> => {
   await requireRole("ADMIN");
-  return apiPost(`/admin/tutors/bulk/approve`, { tutorIds });
+  return apiRequest(`/admin/tutors/bulk/approve`, {
+    method: "POST",
+    body: JSON.stringify({ tutorIds }),
+  });
 };
 
 export const bulkRejectTutors = async (tutorIds: string[]): Promise<ApiResponse> => {
   await requireRole("ADMIN");
-  return apiPost(`/admin/tutors/bulk/reject`, { tutorIds });
+  return apiRequest(`/admin/tutors/bulk/reject`, {
+    method: "POST",
+    body: JSON.stringify({ tutorIds }),
+  });
 };

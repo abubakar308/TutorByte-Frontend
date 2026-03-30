@@ -71,21 +71,21 @@ export const getDefaultDashboardRoute = (role : UserRole) => {
     return "/dashboard"; // All roles access /dashboard, layout.tsx handles showing correct content
 }
 
-export const isValidRedirectForRole = (redirectPath : string, role : UserRole) => {
-    const unifySuperAdminAndAdminRole = role === "SUPER_ADMIN" ? "ADMIN" : role;
+// export const isValidRedirectForRole = (redirectPath : string, role : UserRole) => {
+//     const unifySuperAdminAndAdminRole = role === "SUPER_ADMIN" ? "ADMIN" : role;
 
-    role = unifySuperAdminAndAdminRole;
+//     role = unifySuperAdminAndAdminRole;
 
-    const sanitizedRedirectPath = redirectPath.split("?")[0] || redirectPath;
-    const routeOwner = getRouteOwner(sanitizedRedirectPath);
+//     const sanitizedRedirectPath = redirectPath.split("?")[0] || redirectPath;
+//     const routeOwner = getRouteOwner(sanitizedRedirectPath);
 
-    if(routeOwner === null || routeOwner === "COMMON"){
-        return true;
-    }
+//     if(routeOwner === null || routeOwner === "COMMON"){
+//         return true;
+//     }
 
-    if(routeOwner === role){
-        return true;
-    }
+//     if(routeOwner === role){
+//         return true;
+//     }
 
-    return false;
-}
+//     return false;
+// }

@@ -38,8 +38,6 @@ export async function getAuthHeader() {
   const sessionToken = cookieStore.get("better-auth.session_token")?.value;
   const refreshToken = cookieStore.get("refreshToken")?.value;
 
-  console.log("accesToken:", accessToken, "sessionToken:", sessionToken, "refreshToken:", refreshToken ? "refreshToken found" : "no refreshToken");
-
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };

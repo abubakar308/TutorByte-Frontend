@@ -1,17 +1,26 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Users, Search } from "lucide-react";
+import { Users, Search, Trash2 } from "lucide-react";
 import {
   getAdminUsers,
-  blockUser,
-  unblockUser,
+  changeUserStatus,
+  deleteUser,
   type AdminUser,
 } from "@/services/admin";
 
-const STATUS_STYLES: Record<string, string> = {
-  ACTIVE: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
-  BLOCKED: "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400",
+const STATUS_STYLES: Record<AdminUser["status"], string> = {
+  ACTIVE:
+    "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+  BLOCKED:
+    "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400",
+};
+
+const ROLE_STYLES: Record<AdminUser["role"], string> = {
+  TUTOR: "bg-primary/10 text-primary",
+  ADMIN:
+    "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+  STUDENT: "bg-secondary/10 text-secondary",
 };
 
 export default function UsersSection() {
@@ -21,42 +30,89 @@ export default function UsersSection() {
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (targetPage = page, targetSearch = search) => {
     try {
       setLoading(true);
-      const res = await getAdminUsers(page, 10);
+
+      const res = await getAdminUsers(targetPage, 10, targetSearch);
+
       if (res.success && res.data) {
         setUsers(res.data);
+      } else {
+        setUsers([]);
       }
+    } catch (error) {
+      console.error("Failed to fetch users:", error);
+      setUsers([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchUsers();
+    fetchUsers(page, search);
   }, [page]);
 
+  const handleSearch = async () => {
+    setPage(1);
+    await fetchUsers(1, search);
+  };
+
   const handleToggleStatus = async (user: AdminUser) => {
+    const previousUsers = users;
+   
+
+    try {
+      setActionLoadingId(user.status);
+
+      const nextStatus: AdminUser["status"] =
+        user.status === "ACTIVE" ? "BLOCKED" : "ACTIVE";
+
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === user.id
+            ? {
+                ...u,
+                status: nextStatus,
+              }
+            : u
+        )
+      );
+
+      await changeUserStatus(user.id, nextStatus);
+
+    } catch (error) {
+      console.error("Failed to update user status:", error);
+      setUsers(previousUsers);
+      alert("Action failed");
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const handleDeleteUser = async (user: AdminUser) => {
+    if (!confirm(`Are you sure you want to delete user "${user.name}"? This action cannot be undone.`)) {
+      return;
+    }
+
     try {
       setActionLoadingId(user.id);
 
-      const res =
-        user.status === "ACTIVE"
-          ? await blockUser(user.id)
-          : await unblockUser(user.id);
+      // Optimistically remove from UI
+      setUsers((prev) => prev.filter((u) => u.id !== user.id));
 
-      if (res.success) {
-        setUsers((prev) =>
-          prev.map((u) =>
-            u.id === user.id
-              ? { ...u, status: u.status === "ACTIVE" ? "BLOCKED" : "ACTIVE" }
-              : u
-          )
-        );
-      } else {
-        alert(res.message || "Action failed");
+      const res = await deleteUser(user.id);
+
+      if (!res.success) {
+        // Revert on failure
+        await fetchUsers(page, search);
+        alert(res.message || "Delete failed");
       }
+    } catch (error) {
+      console.error("Failed to delete user:", error);
+      // Revert on error
+      await fetchUsers(page, search);
+      alert("Delete failed");
     } finally {
       setActionLoadingId(null);
     }
@@ -65,6 +121,7 @@ export default function UsersSection() {
   const getInitials = (name: string) =>
     name
       .split(" ")
+      .filter(Boolean)
       .map((n) => n[0])
       .join("")
       .toUpperCase()
@@ -82,78 +139,127 @@ export default function UsersSection() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && fetchUsers()}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             placeholder="Search users..."
-            className="bg-transparent text-sm outline-none text-foreground placeholder:text-muted-foreground w-36"
+            className="w-40 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
           />
         </div>
       </div>
 
+      {/* Column header */}
+      <div className="hidden md:grid grid-cols-[1.8fr_1fr_1fr_120px_80px] gap-4 border-b border-border bg-muted/20 px-6 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <p>User</p>
+        <p>Role</p>
+        <p>Status</p>
+        <p className="text-right">Action</p>
+        <p className="text-center">Delete</p>
+      </div>
+
       <div className="divide-y divide-border">
         {loading ? (
-          <div className="p-6 text-center text-muted-foreground">Loading users...</div>
+          <div className="p-6 text-center text-muted-foreground">
+            Loading users...
+          </div>
         ) : users.length === 0 ? (
-          <div className="p-6 text-center text-muted-foreground">No users found</div>
+          <div className="p-6 text-center text-muted-foreground">
+            No users found
+          </div>
         ) : (
           users.map((u) => (
             <div
               key={u.id}
-              className="flex items-center gap-4 px-6 py-3.5 hover:bg-muted/40 transition"
+              className="grid grid-cols-1 gap-3 px-6 py-4 transition hover:bg-muted/40 md:grid-cols-[1.8fr_1fr_1fr_120px_80px] md:items-center md:gap-4"
             >
-              <div className="h-9 w-9 rounded-full bg-primary/10 text-primary font-bold text-xs flex items-center justify-center shrink-0">
-                {getInitials(u.name)}
+              {/* User */}
+              <div className="flex items-center gap-4 min-w-0">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                  {getInitials(u.name)}
+                </div>
+
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold">{u.name}</p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {u.email}
+                  </p>
+                </div>
               </div>
 
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm">{u.name}</p>
-                <p className="text-xs text-muted-foreground">{u.email}</p>
+              {/* Role */}
+              <div className="flex items-center md:block">
+                <span className="mr-2 text-xs text-muted-foreground md:hidden">
+                  Role:
+                </span>
+                <span
+                  className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-bold ${ROLE_STYLES[u.role]}`}
+                >
+                  {u.role}
+                </span>
               </div>
 
-              <span
-                className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
-                  u.role === "TUTOR"
-                    ? "bg-primary/10 text-primary"
-                    : "bg-secondary/10 text-secondary"
-                }`}
-              >
-                {u.role}
-              </span>
+              {/* Status */}
+              <div className="flex items-center md:block">
+                <span className="mr-2 text-xs text-muted-foreground md:hidden">
+                  Status:
+                </span>
+                <span
+                  className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-bold ${STATUS_STYLES[u.status]}`}
+                >
+                  {u.status}
+                </span>
+              </div>
 
-              <span
-                className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${STATUS_STYLES[u.status]}`}
-              >
-                {u.status}
-              </span>
+              {/* Action */}
+              <div className="flex md:justify-end gap-2">
+                {u.role !== "ADMIN" ? (
+                  <button
+                    onClick={() => handleToggleStatus(u)}
+                    disabled={actionLoadingId === u.id}
+                    className="rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground transition hover:border-primary/40 hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {actionLoadingId === u.id
+                      ? "Processing..."
+                      : u.status === "ACTIVE"
+                      ? "Block"
+                      : "Unblock"}
+                  </button>
+                ) : (
+                  <span className="text-xs text-muted-foreground">—</span>
+                )}
+              </div>
 
-              <button
-                onClick={() => handleToggleStatus(u)}
-                disabled={actionLoadingId === u.id}
-                className="rounded-lg border border-border px-2.5 py-1 text-xs font-semibold text-muted-foreground hover:border-primary/40 hover:text-primary transition disabled:opacity-50"
-              >
-                {actionLoadingId === u.id
-                  ? "Processing..."
-                  : u.status === "ACTIVE"
-                  ? "Block"
-                  : "Unblock"}
-              </button>
+              {/* Delete */}
+              <div className="flex md:justify-center">
+                {u.role !== "ADMIN" ? (
+                  <button
+                    onClick={() => handleDeleteUser(u)}
+                    disabled={actionLoadingId === u.id}
+                    className="rounded-lg border border-red-200 px-2 py-1.5 text-xs font-semibold text-red-600 transition hover:border-red-300 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                ) : (
+                  <span className="text-xs text-muted-foreground">—</span>
+                )}
+              </div>
             </div>
           ))
         )}
       </div>
 
-      <div className="flex items-center justify-between px-6 py-3 border-t border-border bg-muted/20">
+      <div className="flex items-center justify-between border-t border-border bg-muted/20 px-6 py-3">
         <p className="text-xs text-muted-foreground">Page {page}</p>
         <div className="flex gap-2">
           <button
-            onClick={() => setPage(Math.max(1, page - 1))}
-            disabled={page === 1}
-            className="px-3 py-1 rounded-lg border border-border text-xs font-semibold disabled:opacity-50"
+            onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+            disabled={page === 1 || loading}
+            className="rounded-lg border border-border px-3 py-1 text-xs font-semibold disabled:opacity-50"
           >
             Prev
           </button>
           <button
-            onClick={() => setPage(page + 1)}
-            className="px-3 py-1 rounded-lg border border-border text-xs font-semibold"
+            onClick={() => setPage((prev) => prev + 1)}
+            disabled={loading}
+            className="rounded-lg border border-border px-3 py-1 text-xs font-semibold disabled:opacity-50"
           >
             Next
           </button>
