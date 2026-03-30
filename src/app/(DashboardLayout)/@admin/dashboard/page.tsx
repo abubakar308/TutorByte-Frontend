@@ -14,6 +14,7 @@ import PendingTutorsSection from "@/components/admin/PendingTutorsSection";
 import RevenueSection from "@/components/admin/RevenueSection";
 import PaymentsSection from "@/components/admin/PaymentsSection";
 import BookingsSection from "@/components/admin/BookingsSection";
+import Link from "next/link";
 
 
 const STATUS_STYLES: Record<string, string> = {
@@ -64,9 +65,9 @@ export default function AdminDashboard() {
       {/* ── SIDEBAR ─────────────────────────────── */}
       <aside className={`${sideOpen ? "w-60" : "w-[68px]"} flex flex-col border-r border-border bg-card transition-all duration-300 overflow-hidden shrink-0`}>
         <div className="flex h-[68px] items-center border-b border-border px-4">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <ShieldCheck className="h-4 w-4" />
-          </div>
+         <Link href="/" >    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+              <ShieldCheck className="h-4 w-4" />
+          </div></Link>
           {sideOpen && <span className="ml-3 text-[15px] font-bold whitespace-nowrap">TutorByte Admin</span>}
         </div>
 
