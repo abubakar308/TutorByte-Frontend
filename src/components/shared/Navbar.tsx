@@ -252,7 +252,7 @@ export default function Navbar({ user }: NavbarProps) {
 
                       <div className="p-1.5">
                         <Link
-                          href={cfg?.dashboard || "/dashboard"}
+                          href="/dashboard"
                           onClick={() => setProfileOpen(false)}
                           className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm text-card-foreground transition hover:bg-muted"
                         >
@@ -341,7 +341,7 @@ export default function Navbar({ user }: NavbarProps) {
                 ) : (
                   <div className="space-y-1">
                     <Link
-                      href={cfg?.dashboard || "/dashboard"}
+                      href={user?.role === "ADMIN" ? "/admin/dashboard" : user?.role === "TUTOR" ? "/tutor/dashboard" : "/dashboard"}
                       onClick={() => setMobileOpen(false)}
                       className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm text-foreground transition hover:bg-muted"
                     >

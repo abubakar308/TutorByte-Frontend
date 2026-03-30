@@ -1,21 +1,20 @@
-
 "use server";
 
-import { apiRequest } from "../api/base";
+import { apiGet, apiPost } from "../api/base";
 import { ApiResponse } from "../api/types";
 
-export interface AdminBooking {
+export interface Payment {
   id: string;
   studentName: string;
   tutorName: string;
-  subject: string;
-  status: "PENDING" | "ACCEPTED" | "COMPLETED" | "CANCELLED";
   amount: number;
-  date: string;
+  status: "PAID" | "REFUNDED" | "PENDING";
+  gateway: string;
+  createdAt: string;
 }
 
-export interface PaginatedBookings {
-  data: AdminBooking[];
+export interface PaginatedPayments {
+  data: Payment[];
   total: number;
   page: number;
   limit: number;
@@ -34,14 +33,15 @@ function createQuery(params: Record<string, string | number | boolean | undefine
   return queryString ? `?${queryString}` : "";
 }
 
-export const getAdminBookings = async (
+export const getPayments = async (
   page = 1,
   limit = 10,
-  status = ""
-): Promise<ApiResponse<PaginatedBookings>> => {
+  status?: string
+): Promise<ApiResponse<PaginatedPayments>> => {
   const query = createQuery({ page, limit, status });
+  return apiGet<PaginatedPayments>(`/payments${query}`);
+};
 
-  return apiRequest<PaginatedBookings>(`/admin/bookings${query}`, {
-    method: "GET",
-  });
+export const refundPayment = async (paymentId: string): Promise<ApiResponse> => {
+  return apiPost(`/payments/${paymentId}/refund`, {});
 };
