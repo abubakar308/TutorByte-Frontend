@@ -1,7 +1,7 @@
 "use client";
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { AuthShell, Field, SubmitBtn, ErrorBox } from "@/components/auth/AuthLayout";
+import { AuthShell, Field, SubmitBtn, ErrorBox } from "@/components/ui/auth/AuthLayout";
 
 function ResetPasswordContent() {
   const [password, setPassword] = useState("");

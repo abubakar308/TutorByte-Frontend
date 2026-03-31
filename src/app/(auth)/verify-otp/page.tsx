@@ -3,7 +3,7 @@ import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { AuthShell, ErrorBox, SubmitBtn } from "@/components/auth/AuthLayout";
+import { AuthShell, ErrorBox, SubmitBtn } from "@/components/ui/auth/AuthLayout";
 
 function VerifyOtpContent() {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);

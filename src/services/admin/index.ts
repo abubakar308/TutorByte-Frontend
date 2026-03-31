@@ -83,6 +83,17 @@ export interface AdminUsersResponse {
   limit?: number;
 }
 
+export interface Subject {
+  id: string;
+  name: string;
+ categories:  "ACADEMIC" | "SKILLS" | "LANGUAGE"
+}
+
+export interface Language {
+  id: string;
+  name: string;
+}
+
 // ============ DASHBOARD & STATS ============
 
 export const getAdminDashboardStats = async (): Promise<ApiResponse<AdminDashboardStats>> => {
@@ -421,5 +432,72 @@ export const bulkRejectTutors = async (tutorIds: string[]): Promise<ApiResponse>
   return apiRequest(`/admin/tutors/bulk/reject`, {
     method: "POST",
     body: JSON.stringify({ tutorIds }),
+  });
+};
+
+// ============ SUBJECT MANAGEMENT ============
+
+export const createSubject = async (data: { name: string; description?: string }): Promise<ApiResponse<Subject>> => {
+  await requireRole("ADMIN");
+  return apiRequest<Subject>(`/subjects`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+};
+
+export const getSubjects = async (
+  page = 1,
+  limit = 10,
+  search = "",
+): Promise<ApiResponse<{ data: Subject[]; total: number }>> => {
+  const params = new URLSearchParams();
+  params.append("page", String(page));
+  params.append("limit", String(limit));
+  if (search) params.append("search", search);
+  const query = params.toString() ? `?${params.toString()}` : "";
+  return apiRequest(`/subject${query}`, {
+    method: "GET",
+  });
+};
+
+// ============ LANGUAGE MANAGEMENT ============
+
+export const createLanguage = async (data: { name: string; code: string }): Promise<ApiResponse<Language>> => {
+  return apiRequest<Language>(`/languages`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+};
+
+export const getLanguages = async (
+  page = 1,
+  limit = 10,
+  search = "",
+): Promise<ApiResponse<{ data: Language[]; total: number }>> => {
+  const params = new URLSearchParams();
+  params.append("page", String(page));
+  params.append("limit", String(limit));
+  if (search) params.append("search", search);
+  const query = params.toString() ? `?${params.toString()}` : "";
+  return apiRequest(`/language${query}`, {
+    method: "GET",
+  });
+};
+
+export const updateLanguage = async (
+  languageId: string,
+  data: Partial<Language>
+): Promise<ApiResponse<Language>> => {
+  await requireRole("ADMIN");
+  return apiRequest<Language>(`/languages/${languageId}`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+};
+
+export const deleteLanguage = async (languageId: string): Promise<ApiResponse> => {
+  await requireRole("ADMIN");
+  return apiRequest(`/admin/languages/${languageId}`, {
+    method: "DELETE",
   });
 };

@@ -9,7 +9,7 @@ import {
   ErrorBox,
   OrDivider,
   GoogleBtn,
-} from "@/components/auth/AuthLayout";
+} from "@/components/ui/auth/AuthLayout";
 import { loginUser } from "@/services/auth";
 
 export default function LoginForm() {

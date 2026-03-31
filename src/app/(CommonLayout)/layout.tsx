@@ -1,5 +1,5 @@
-import Footer from "@/components/shared/Footer";
-import Navbar from "@/components/shared/Navbar";
+import Footer from "@/components/ui/shared/Footer";
+import Navbar from "@/components/ui/shared/Navbar";
 import { getCurrentUser } from "@/services/auth";
 
 export default async function CommonLayout({

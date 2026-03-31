@@ -64,6 +64,14 @@ export interface TutorProfile {
 
 // ============ DASHBOARD & STATS ============
 
+export const createTutorProfile = async (data: Partial<TutorProfile>): Promise<ApiResponse<TutorProfile>> => {
+  await requireRole("STUDENT");
+  return apiRequest<TutorProfile>("/tutors/profile", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
 export const getTutorDashboardStats = async (): Promise<ApiResponse<TutorStats>> => {
   await requireRole("TUTOR");
   return apiRequest<TutorStats>("/tutors/dashboard/stats", { method: "GET" });
@@ -71,10 +79,10 @@ export const getTutorDashboardStats = async (): Promise<ApiResponse<TutorStats>>
 
 // ============ PROFILE MANAGEMENT ============
 
-export const getTutorProfile = async (tutorId?: string): Promise<ApiResponse<TutorProfile>> => {
-  const endpoint = tutorId ? `/tutors/${tutorId}` : "/tutors/me";
-  return apiRequest<TutorProfile>(endpoint, { method: "GET" });
-};
+// export const getTutorProfile = async (tutorId?: string): Promise<ApiResponse<TutorProfile>> => {
+//   const endpoint = tutorId ? `/tutors/${tutorId}` : "/tutors/me";
+//   return apiRequest<TutorProfile>(endpoint, { method: "GET" });
+// };
 
 export const updateTutorProfile = async (
   data: Partial<TutorProfile>

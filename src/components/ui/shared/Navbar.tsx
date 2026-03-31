@@ -132,11 +132,10 @@ export default function Navbar({ user }: NavbarProps) {
   return (
     <>
       <header
-        className={`sticky top-0 z-50 border-b transition-all duration-300 ${
-          scrolled
+        className={`sticky top-0 z-50 border-b transition-all duration-300 ${scrolled
             ? "border-border/80 bg-background/95 shadow-sm backdrop-blur-xl"
             : "border-border/40 bg-background/80 backdrop-blur-md"
-        }`}
+          }`}
       >
         <div className="mx-auto flex h-[68px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="group flex items-center gap-3">
@@ -233,9 +232,8 @@ export default function Navbar({ user }: NavbarProps) {
                     </div>
 
                     <ChevronDown
-                      className={`h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 ${
-                        profileOpen ? "rotate-180" : ""
-                      }`}
+                      className={`h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 ${profileOpen ? "rotate-180" : ""
+                        }`}
                     />
                   </button>
 
@@ -268,6 +266,12 @@ export default function Navbar({ user }: NavbarProps) {
                           <User className="h-4 w-4 text-muted-foreground" />
                           My Profile
                         </Link>
+
+                        {user?.role === "STUDENT" && !user?.tutorProfile && (
+                       
+                            <Link href="/become-tutor">Become a Tutor</Link>
+                    
+                        )}
                       </div>
 
                       <div className="border-t border-border/60 p-1.5">

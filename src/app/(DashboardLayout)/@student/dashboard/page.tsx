@@ -10,7 +10,7 @@ import {
   getStudentDashboardStats,
   type StudentStats,
 } from "@/services/student";
-import StudentBookingsSection from "@/components/student/StudentBookingsSection";
+import StudentBookingsSection from "@/components/ui/student/StudentBookingsSection";
 
 
 const navItems = [

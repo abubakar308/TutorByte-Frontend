@@ -1,5 +1,5 @@
-import { AuthShell } from "@/components/auth/AuthLayout";
-import LoginForm from "@/components/auth/Login";
+import { AuthShell } from "@/components/ui/auth/AuthLayout";
+import LoginForm from "@/components/ui/auth/Login";
 
 
 export default function LoginPage() {

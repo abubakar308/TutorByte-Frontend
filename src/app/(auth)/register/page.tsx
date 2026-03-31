@@ -2,7 +2,7 @@
 import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { AuthShell, Field, SubmitBtn, ErrorBox, OrDivider, GoogleBtn } from "@//components/auth/AuthLayout";
+import { AuthShell, Field, SubmitBtn, ErrorBox, OrDivider, GoogleBtn } from "@/components/ui/auth/AuthLayout";
 
 function RegisterContent() {
   const searchParams = useSearchParams();

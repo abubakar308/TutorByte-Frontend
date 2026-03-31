@@ -50,7 +50,7 @@ export default function PendingTutorsSection() {
 
 
       if (res.success && res.data) {
-        const users = Array.isArray(res.data) ? res.data : res.data.data ?? [];
+        const users = Array.isArray(res.data) ? res.data : (typeof res.data === 'object' && res.data !== null && 'data' in res.data ? (res.data as any).data : []) ?? [];
 
 
         const pendingTutors = users.filter(

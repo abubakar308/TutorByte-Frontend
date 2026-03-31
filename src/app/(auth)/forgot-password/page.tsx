@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { AuthShell, Field, SubmitBtn, ErrorBox } from "@/components/auth/AuthLayout";
+import { AuthShell, Field, SubmitBtn, ErrorBox } from "@/components/ui/auth/AuthLayout";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");

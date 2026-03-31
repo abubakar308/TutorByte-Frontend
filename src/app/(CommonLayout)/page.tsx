@@ -1,8 +1,8 @@
-import HeroSection from "@/components/home/Hero";
-import CategoriesSection from "@/components/home/Categories";
-import FeaturedTutorsSection from "@/components/home/Featured";
-import HowItWorksSection from "@/components/home/Howitwork";
-import TrustSection from "@/components/home/Trusted";
+import HeroSection from "@/components/ui/home/Hero";
+import CategoriesSection from "@/components/ui/home/Categories";
+import FeaturedTutorsSection from "@/components/ui/home/Featured";
+import HowItWorksSection from "@/components/ui/home/Howitwork";
+import TrustSection from "@/components/ui/home/Trusted";
 
 export default function HomePage() {
   return (

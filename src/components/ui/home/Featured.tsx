@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { GraduationCap } from "lucide-react";
 import { mockTutors } from "@/lib/mockData";
-import TutorCard from "@/components/tutors/TutorCard";
+import TutorCard from "@/components/ui/tutors/TutorCard";
 
 export default function FeaturedTutorsSection() {
   // Taking a subset of tutors for the featured section
