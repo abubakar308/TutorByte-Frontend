@@ -57,6 +57,7 @@ export interface TutorProfile {
   isApproved: boolean;
   subjects: any[];
   languages: any[];
+  availabilities?: TutorAvailability[];
   image?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -79,10 +80,10 @@ export const getTutorDashboardStats = async (): Promise<ApiResponse<TutorStats>>
 
 // ============ PROFILE MANAGEMENT ============
 
-// export const getTutorProfile = async (tutorId?: string): Promise<ApiResponse<TutorProfile>> => {
-//   const endpoint = tutorId ? `/tutors/${tutorId}` : "/tutors/me";
-//   return apiRequest<TutorProfile>(endpoint, { method: "GET" });
-// };
+export const getTutorProfile = async (): Promise<ApiResponse<TutorProfile>> => {
+  await requireRole("TUTOR");
+  return apiRequest<TutorProfile>("/tutors/profile/me", { method: "GET" });
+};
 
 export const updateTutorProfile = async (
   data: Partial<TutorProfile>
@@ -197,7 +198,7 @@ export const createAvailability = async (
   data: Omit<TutorAvailability, "id">
 ): Promise<ApiResponse<TutorAvailability>> => {
   await requireRole("TUTOR");
-  return apiRequest<TutorAvailability>("/tutors/availabilities", {
+  return apiRequest<TutorAvailability>("/availability/slot", {
     method: "POST",
     body: JSON.stringify(data),
   });
