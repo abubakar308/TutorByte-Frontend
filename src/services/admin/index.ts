@@ -449,7 +449,7 @@ export const getSubjects = async (
   page = 1,
   limit = 10,
   search = "",
-): Promise<ApiResponse<{ data: Subject[]; total: number }>> => {
+): Promise<ApiResponse<{ data: Subject[] }>> => {
   const params = new URLSearchParams();
   params.append("page", String(page));
   params.append("limit", String(limit));
@@ -473,7 +473,7 @@ export const getLanguages = async (
   page = 1,
   limit = 10,
   search = "",
-): Promise<ApiResponse<{ data: Language[]; total: number }>> => {
+): Promise<ApiResponse<{ data: Language[] }>> => {
   const params = new URLSearchParams();
   params.append("page", String(page));
   params.append("limit", String(limit));

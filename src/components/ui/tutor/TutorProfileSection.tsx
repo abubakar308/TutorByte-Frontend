@@ -2,24 +2,30 @@
 import { useState, useEffect } from "react";
 import { Save, User, BookOpen, Globe, Loader2, X, Search } from "lucide-react";
 import { toast } from "react-hot-toast";
-import { getLanguages, getSubjects } from "@/services/admin";
+import { getLanguages, getSubjects, Language } from "@/services/admin";
 import { createTutorProfile, TutorProfile } from "@/services/tutor";
+import { Subject } from "@/types/tutor";
 
 export default function TutorProfileSection() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  const [profile, setProfile] = useState<Partial<TutorProfile>>({
-    bio: "",
-    hourlyRate: 0,
-    experienceYears: 0,
-    subjects: [],
-    languages: [],
-  });
+const [profile, setProfile] = useState<{
+  bio: string;
+  hourlyRate: number;
+  experienceYears: number;
+  subjects: string[];
+  languages: string[];
+}>({
+  bio: "",
+  hourlyRate: 0,
+  experienceYears: 0,
+  subjects: [],
+  languages: [],
+});
   
-  console.log(profile)
-  const [subjects, setSubjects] = useState<any[]>([]);
-  const [languages, setLanguages] = useState<any[]>([]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [languages, setLanguages] = useState<Language[]>([]);
 
 
   useEffect(() => {
@@ -32,10 +38,11 @@ export default function TutorProfileSection() {
           getLanguages()
         ]);
 
-        console.log("lang",langRes)
 
-        if (subRes.success) setSubjects(subRes.data);
-        if (langRes.success) setLanguages(langRes.data);
+      const arr = subRes?.data;;
+setSubjects(Array.isArray(arr) ? arr : []);
+        const langArr = langRes?.data;
+setLanguages(Array.isArray(langArr) ? langArr : []);
       } catch (err) {
         toast.error("Failed to load subjects or languages");
         console.error(err);
@@ -55,7 +62,7 @@ export default function TutorProfileSection() {
 
     setSaving(true);
     try {
-      const res = await createTutorProfile(profile);
+      const res = await createTutorProfile(profile as TutorProfile);
       if (res.success) {
         toast.success("Tutor profile created successfully!");
       } else {
@@ -67,20 +74,19 @@ export default function TutorProfileSection() {
       setSaving(false);
     }
   };
+const toggleItem = (id: string, field: 'subjects' | 'languages') => {
+  const currentList = (profile[field] as string[]) || [];
+  const isExist = currentList.includes(id);
 
-  const toggleItem = (id: string, field: 'subjects' | 'languages') => {
-    const currentList = profile[field] || [];
-    const isExist = currentList.includes(id);
+  let updatedList: string[];
+  if (isExist) {
+    updatedList = currentList.filter(item => item !== id);
+  } else {
+    updatedList = [...currentList, id];
+  }
 
-    let updatedList;
-    if (isExist) {
-      updatedList = currentList.filter(item => item !== id);
-    } else {
-      updatedList = [...currentList, id];
-    }
-
-    setProfile({ ...profile, [field]: updatedList });
-  };
+  setProfile({ ...profile, [field]: updatedList });
+};
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center py-20 gap-3">

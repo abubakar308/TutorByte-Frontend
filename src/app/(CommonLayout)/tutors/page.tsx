@@ -5,11 +5,12 @@ import { Search, SlidersHorizontal, GraduationCap, X, Globe, Loader2 } from "luc
 import TutorCard from "@/components/ui/tutors/TutorCard";
 import { getAllTutors, Tutor } from "@/services/tutors"; 
 import { getSubjects, getLanguages } from "@/services/admin"; 
+import { Language, Subject } from "@/types/tutor";
 
 export default function TutorsListingPage() {
   const [tutors, setTutors] = useState<Tutor[]>([]);
-  const [subjects, setSubjects] = useState<any[]>([]);
-  const [languages, setLanguages] = useState<any[]>([]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [languages, setLanguages] = useState<Language[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -28,8 +29,10 @@ export default function TutorsListingPage() {
         ]);
 
         if (tutorsRes.success) setTutors(tutorsRes.data);
-        if (subjectsRes?.success) setSubjects(subjectsRes.data);
-        if (languagesRes?.success) setLanguages(languagesRes.data);
+       const arr = subjectsRes.data ?? subjectsRes.data;
+setSubjects(Array.isArray(arr) ? arr : []);
+       const langArr = languagesRes.data? languagesRes.data : [];
+setLanguages(Array.isArray(langArr) ? langArr : []);
         
       } catch (error) {
         console.error("Error loading data:", error);
@@ -40,31 +43,31 @@ export default function TutorsListingPage() {
     loadData();
   }, []);
 
-  // ✅ ফিল্টার লজিক আপডেট করা হয়েছে
-  const filteredTutors = useMemo(() => {
-    return tutors.filter((tutor) => {
-      // নাম এবং বায়োতে সার্চ
-      const matchesSearch =
-        tutor.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        tutor.bio.toLowerCase().includes(searchQuery.toLowerCase());
+const filteredTutors = useMemo(() => {
+  return tutors.filter((tutor) => {
+    const searchLower = searchQuery.toLowerCase();
+    
 
-      // সাবজেক্ট ফিল্টার (Nested Array Check)
-      const matchesSubject =
-        selectedSubject === "All" ||
-        tutor.subjects?.some((s) => s.subject.name === selectedSubject);
+    const matchesSearch =
+      tutor.user.name.toLowerCase().includes(searchLower) ||
+      tutor.bio.toLowerCase().includes(searchLower) ||
+      tutor.subjects?.some(s => s.subject.name.toLowerCase().includes(searchLower));
 
-      // ল্যাঙ্গুয়েজ ফিল্টার (Nested Array Check)
-      const matchesLanguage =
-        selectedLanguage === "All" ||
-        tutor.languages?.some((l) => l.language.name === selectedLanguage);
 
-      // প্রাইস ফিল্টার
-      const matchesPrice = Number(tutor.hourlyRate) <= maxPrice;
+    const matchesSubject =
+      selectedSubject === "All" ||
+      tutor.subjects?.some((s) => s.subject.name === selectedSubject);
 
-      return matchesSearch && matchesSubject && matchesLanguage && matchesPrice;
-    });
-  }, [searchQuery, selectedSubject, selectedLanguage, maxPrice, tutors]);
+   
+    const matchesLanguage =
+      selectedLanguage === "All" ||
+      tutor.languages?.some((l) => l.language.name === selectedLanguage);
 
+    const matchesPrice = Number(tutor.hourlyRate || 0) <= maxPrice;
+
+    return matchesSearch && matchesSubject && matchesLanguage && matchesPrice;
+  });
+}, [searchQuery, selectedSubject, selectedLanguage, maxPrice, tutors]);
   if (loading) {
     return (
       <div className="flex h-[80vh] flex-col items-center justify-center gap-4 bg-background">

@@ -32,25 +32,24 @@ export default function TutorDashboard() {
   const [user, setUser] = useState<DecodedUser | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const initDashboard = async () => {
-      try {
-        setLoading(true);
-        // ১. ইউজারের তথ্য নেওয়া (Server Action থেকে)
-        const currentUser = await getCurrentUser();
-        setUser(currentUser);
+  // useEffect(() => {
+  //   const initDashboard = async () => {
+  //     try {
+  //       setLoading(true);
+  
+  //       const currentUser = await getCurrentUser();
+  //       setUser(currentUser);
 
-        // ২. ড্যাশবোর্ড স্ট্যাটস নেওয়া
-        const res = await getTutorDashboardStats();
-        if (res.success) setStats(res.data);
-      } catch (error) {
-        console.error("Dashboard Init Error:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    initDashboard();
-  }, []);
+  //       const res = await getTutorDashboardStats();
+  //       if (res.success) setStats(res.data);
+  //     } catch (error) {
+  //       console.error("Dashboard Init Error:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   initDashboard();
+  // }, []);
 
   const handleLogout = async () => {
     await logOut();
@@ -186,7 +185,7 @@ export default function TutorDashboard() {
             {active === "dashboard" && (
               <div className="grid gap-8 lg:grid-cols-[1fr_400px]">
                 <div className="space-y-8">
-                  <TutorBookingsSection limit={5} />
+                  <TutorBookingsSection />
                 </div>
                 <div className="space-y-8">
                   <ReviewsSection />

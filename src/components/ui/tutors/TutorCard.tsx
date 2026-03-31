@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { Star, Clock, Languages, ChevronRight } from "lucide-react";
 
-// interface অনুযায়ী props টাইপ করলে ভালো হয়
 export default function TutorCard({ tutor }: { tutor: any }) {
-  // ডাটা স্ট্রাকচার অনুযায়ী ডিস্ট্রাকচারিং আপডেট করা হয়েছে
+
   const { 
     id, 
     bio, 

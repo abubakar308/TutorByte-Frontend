@@ -1,114 +1,91 @@
-import { DayOfWeek, SubjectCategory, TutorProfile } from "@/types/tutor";
+"use client";
 
-export const mockSubjects = [
-  { id: "s1", name: "English & IELTS", categories: SubjectCategory.LANGUAGE },
-  { id: "s2", name: "Mathematics", categories: SubjectCategory.MATHEMATICS },
-  { id: "s3", name: "Physics", categories: SubjectCategory.SCIENCE },
-  { id: "s4", name: "Web Development", categories: SubjectCategory.TECHNOLOGY },
-  { id: "s5", name: "Classical Music", categories: SubjectCategory.ARTS },
-];
+import { useState, useEffect } from "react";
+import Link from "next/navigation";
+import { GraduationCap, ArrowRight, Loader2, Star } from "lucide-react";
+import TutorCard from "@/components/ui/tutors/TutorCard";
+import { getAllTutors } from "@/services/tutor"; // আপনার টিউটর সার্ভিস ফাংশন
 
-export const mockLanguages = [
-  { id: "l1", name: "English" },
-  { id: "l2", name: "Bangla" },
-  { id: "l3", name: "Spanish" },
-];
+export default function FeaturedTutorsSection() {
+  const [tutors, setTutors] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export const mockTutors: TutorProfile[] = [
-  {
-    id: "tp1",
-    userId: "u1",
-    bio: "Passionate English tutor with 5+ years of experience in helping students achieve their IELTS goals. I focus on practical communication and grammar accuracy.",
-    experienceYears: 5,
-    hourlyRate: 18.00,
-    averageRating: 4.9,
-    totalReviews: 124,
-    isApproved: true,
-    createdAt: new Date().toISOString(),
-    user: {
-      id: "u1",
-      name: "Sarah Johnson",
-      email: "sarah@example.com",
-      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=900&auto=format&fit=crop",
-      role: "TUTOR"
-    },
-    subjects: [
-      { id: "ts1", tutorId: "tp1", subjectId: "s1", subject: mockSubjects[0] }
-    ],
-    languages: [
-      { id: "tl1", tutorId: "tp1", languageId: "l1", language: mockLanguages[0] },
-      { id: "tl2", tutorId: "tp1", languageId: "l2", language: mockLanguages[1] }
-    ],
-    availabilities: [
-      { id: "a1", dayOfWeek: DayOfWeek.MONDAY, startTime: "09:00", endTime: "12:00", isActive: true },
-      { id: "a2", dayOfWeek: DayOfWeek.WEDNESDAY, startTime: "14:00", endTime: "18:00", isActive: true },
-      { id: "a3", dayOfWeek: DayOfWeek.FRIDAY, startTime: "10:00", endTime: "15:00", isActive: true }
-    ],
-    reviews: [
-      {
-        id: "r1", tutorId: "tp1", studentId: "u2", rating: 5, comment: "Sarah is amazing! My IELTS score improved significantly.", createdAt: new Date().toISOString(),
-        student: { id: "u2", name: "Abu Bakar", email: "abu@example.com", role: "STUDENT" }
+  useEffect(() => {
+    const fetchTopTutors = async () => {
+      try {
+        const res = await getAllTutors(); // API থেকে সব টিউটর নিয়ে আসা
+        if (res?.success) {
+          // ফিল্টারিং লজিক: রেটিং ৪.৫ এর উপরে এবং ভেরিফাইড টিউটরদের আগে দেখানো হচ্ছে
+          const sorted = res.data
+            .filter((t: any) => t.isVerified === true) // শুধুমাত্র ভেরিফাইড টিউটর
+            .sort((a: any, b: any) => b.rating - a.rating) // হাই রেটিং অনুযায়ী সর্টিং
+            .slice(0, 3); // সেরা ৩ জন
+
+          setTutors(sorted);
+        }
+      } catch (error) {
+        console.error("Error fetching featured tutors:", error);
+      } finally {
+        setLoading(false);
       }
-    ]
-  },
-  {
-    id: "tp2",
-    userId: "u3",
-    bio: "Expert Mathematician with a knack for making complex problems simple. Whether it's Calculus or Basic Algebra, I've got you covered.",
-    experienceYears: 8,
-    hourlyRate: 25.00,
-    averageRating: 4.8,
-    totalReviews: 89,
-    isApproved: true,
-    createdAt: new Date().toISOString(),
-    user: {
-      id: "u3",
-      name: "Arif Rahman",
-      email: "arif@example.com",
-      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=900&auto=format&fit=crop",
-      role: "TUTOR"
-    },
-    subjects: [
-      { id: "ts2", tutorId: "tp2", subjectId: "s2", subject: mockSubjects[1] },
-      { id: "ts3", tutorId: "tp2", subjectId: "s3", subject: mockSubjects[2] }
-    ],
-    languages: [
-      { id: "tl3", tutorId: "tp2", languageId: "l1", language: mockLanguages[0] },
-      { id: "tl4", tutorId: "tp2", languageId: "l2", language: mockLanguages[1] }
-    ],
-    availabilities: [
-      { id: "a4", dayOfWeek: DayOfWeek.TUESDAY, startTime: "10:00", endTime: "16:00", isActive: true },
-      { id: "a5", dayOfWeek: DayOfWeek.THURSDAY, startTime: "10:00", endTime: "16:00", isActive: true }
-    ],
-    reviews: []
-  },
-  {
-    id: "tp3",
-    userId: "u4",
-    bio: "Full Stack Developer turned tutor. I'll teach you how to build real-world applications using modern technologies like React and Next.js.",
-    experienceYears: 4,
-    hourlyRate: 30.00,
-    averageRating: 5.0,
-    totalReviews: 45,
-    isApproved: true,
-    createdAt: new Date().toISOString(),
-    user: {
-      id: "u4",
-      name: "Maya Chen",
-      email: "maya@example.com",
-      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=900&auto=format&fit=crop",
-      role: "TUTOR"
-    },
-    subjects: [
-      { id: "ts4", tutorId: "tp3", subjectId: "s4", subject: mockSubjects[3] }
-    ],
-    languages: [
-      { id: "tl5", tutorId: "tp3", languageId: "l1", language: mockLanguages[0] }
-    ],
-    availabilities: [
-      { id: "a6", dayOfWeek: DayOfWeek.SATURDAY, startTime: "09:00", endTime: "17:00", isActive: true },
-      { id: "a7", dayOfWeek: DayOfWeek.SUNDAY, startTime: "09:00", endTime: "13:00", isActive: true }
-    ],
-    reviews: []
-  }
-];
+    };
+
+    fetchTopTutors();
+  }, []);
+
+  return (
+    <section id="tutors" className="relative bg-muted/30 py-24 overflow-hidden">
+      {/* Background Decor */}
+      <div className="absolute left-0 top-0 h-64 w-64 rounded-full bg-primary/5 blur-[100px]" />
+      
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Section Header */}
+        <div className="mb-16 flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-primary">
+              <Star className="h-3.5 w-3.5 fill-primary" />
+              <span>Elite Selection</span>
+            </div>
+            <h2 className="mt-6 text-4xl font-black tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+              Meet our <span className="text-primary italic">top-rated</span> educators.
+            </h2>
+            <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
+              We've hand-picked these professionals based on student feedback, 
+              subject expertise, and verified background checks.
+            </p>
+          </div>
+          
+          <Link 
+            href="/tutors" 
+            className="group inline-flex items-center gap-2 text-sm font-black uppercase tracking-widest text-primary hover:opacity-80 transition-all"
+          >
+            Explore All Tutors
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </Link>
+        </div>
+
+        {/* Content Area */}
+        {loading ? (
+          <div className="flex h-64 flex-col items-center justify-center gap-4">
+            <Loader2 className="h-10 w-10 animate-spin text-primary/40" />
+            <p className="text-sm font-bold text-muted-foreground animate-pulse">
+              Finding our best experts...
+            </p>
+          </div>
+        ) : tutors.length > 0 ? (
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {tutors.map((tutor) => (
+              <div key={tutor.id} className="transition-transform hover:-translate-y-2 duration-300">
+                <TutorCard tutor={tutor} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-[2.5rem] border border-dashed border-border p-20 text-center">
+            <p className="text-muted-foreground font-medium">No featured tutors found at the moment.</p>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}

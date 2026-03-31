@@ -2,20 +2,23 @@
 import { useState, useEffect } from "react";
 import { Search, Plus, Pencil, Trash2, GraduationCap, Loader2 } from "lucide-react";
 import AddSubjectModal from "@/components/modals/admin/AddSubjectModal";
-import { getSubjects } from "@/services/admin";
+import { getSubjects, Subject } from "@/services/admin";
 
 export default function SubjectsSection() {
-  const [subjects, setSubjects] = useState([]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedSubject, setSelectedSubject] = useState(null); 
+  const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null); 
   
   const fetchSubjects = async () => {
     try {
       setLoading(true);
       const res = await getSubjects();
-      if (res.success) setSubjects(res.data);
+      const arr = res.data? res.data : [];
+setSubjects(Array.isArray(arr) ? arr : []);
+    } catch (err) {
+      console.error("Failed to fetch subjects:", err);
       
     } finally {
       setLoading(false);
@@ -68,7 +71,7 @@ export default function SubjectsSection() {
             <div key={subject.id} className="group p-5 rounded-2xl border border-border bg-card hover:border-primary/40 transition-all shadow-sm">
               <div className="flex justify-between items-start mb-4">
                 <div className="h-12 w-12 rounded-xl bg-primary/5 flex items-center justify-center text-2xl">
-                  {subject.icon || "📚"}
+                  <GraduationCap className="h-6 w-6 text-primary" />
                 </div>
                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button 
@@ -83,7 +86,7 @@ export default function SubjectsSection() {
                 </div>
               </div>
               <h3 className="font-bold text-foreground">{subject.name}</h3>
-              <p className="text-xs text-muted-foreground mt-1">{subject.teacherCount} Active Teachers</p>
+              {/* <p className="text-xs text-muted-foreground mt-1">{subject.teacherCount} Active Teachers</p> */}
             </div>
           ))}
         </div>

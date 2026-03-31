@@ -10,8 +10,6 @@ export default async function CommonLayout({
 
    const user = await getCurrentUser();
 
-   console.log(user)
-
   return (
     <div className="flex min-h-screen flex-col bg-background">
         <Navbar user={user} />

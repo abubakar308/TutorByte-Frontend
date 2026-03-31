@@ -55,8 +55,8 @@ export interface TutorProfile {
   averageRating: number;
   totalReviews: number;
   isApproved: boolean;
-  subjects: any[];
-  languages: any[];
+  subjects: [];
+  languages: [];
   availabilities?: TutorAvailability[];
   image?: string;
   createdAt?: string;
