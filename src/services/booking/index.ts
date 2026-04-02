@@ -3,6 +3,7 @@
 
 import { apiRequest } from "../api/base";
 import { ApiResponse } from "../api/types";
+import { requireRole } from "@/services/auth";
 
 export interface AdminBooking {
   id: string;
@@ -20,6 +21,24 @@ export interface PaginatedBookings {
   page: number;
   limit: number;
 }
+
+export interface ICreateBookingPayload {
+  tutorId: string;
+  subjectId: string;
+  bookingDate: string; // ISO string format
+  startTime: string;   // HH:mm format
+  endTime: string;     // HH:mm format
+}
+
+
+export const createBooking = async (data: Partial<ICreateBookingPayload>): Promise<ApiResponse<ICreateBookingPayload>> => {
+  await requireRole("STUDENT");
+  return apiRequest<ICreateBookingPayload>("/bookings", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
 
 function createQuery(params: Record<string, string | number | boolean | undefined>) {
   const searchParams = new URLSearchParams();

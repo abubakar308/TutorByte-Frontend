@@ -13,6 +13,14 @@ export interface StudentStats {
   averageRating: number;
 }
 
+export interface CreateBookingRequest {
+  tutorId: string;
+  subjectId: string;
+  bookingDate: string;
+  startTime: string;
+  endTime: string;
+}
+
 export interface StudentBooking {
   id: string;
   tutorId: string;
@@ -137,10 +145,10 @@ export const getBookingById = async (bookingId: string): Promise<ApiResponse<Stu
 };
 
 export const createBooking = async (
-  data: Omit<StudentBooking, "id">
+  data: CreateBookingRequest
 ): Promise<ApiResponse<StudentBooking>> => {
   await requireRole("STUDENT");
-  return apiRequest<StudentBooking>("/students/bookings", {
+  return apiRequest<StudentBooking>("/bookings", {
     method: "POST",
     body: JSON.stringify(data),
   });

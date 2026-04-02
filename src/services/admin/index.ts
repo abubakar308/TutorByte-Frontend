@@ -86,7 +86,7 @@ export interface AdminUsersResponse {
 export interface Subject {
   id: string;
   name: string;
- categories:  "ACADEMIC" | "SKILLS" | "LANGUAGE"
+ category:  "ACADEMIC" | "SKILLS" | "LANGUAGE"
 }
 
 export interface Language {
@@ -437,8 +437,13 @@ export const bulkRejectTutors = async (tutorIds: string[]): Promise<ApiResponse>
 
 // ============ SUBJECT MANAGEMENT ============
 
-export const createSubject = async (data: { name: string; description?: string }): Promise<ApiResponse<Subject>> => {
+export const createSubject = async (data: { 
+  name: string; 
+  category: "ACADEMIC" | "SKILLS" | "LANGUAGE"; 
+}): Promise<ApiResponse<Subject>> => {
+  
   await requireRole("ADMIN");
+
   return apiRequest<Subject>(`/subjects`, {
     method: "POST",
     body: JSON.stringify(data),

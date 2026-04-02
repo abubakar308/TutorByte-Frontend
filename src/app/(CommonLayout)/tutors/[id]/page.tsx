@@ -1,24 +1,25 @@
-"use client"
+"use client";
 
 import { useState, useEffect, use } from "react";
 import Link from "next/link";
-import { 
-  Star, 
-  Clock, 
-  Languages, 
-  CheckCircle2, 
-  ArrowLeft, 
-  Share2, 
-  Heart,
+import { useRouter } from "next/navigation";
+import {
+  CheckCircle2,
   MessageCircle,
-  ShieldCheck,
   Loader2,
-  XCircle,
-  BookOpen
+  BookOpen,
+  CalendarDays,
+  Timer,
+  Star,
+  Clock,
+  ShieldCheck,
+  Globe
 } from "lucide-react";
 
 import { getTutorById } from "@/services/tutors";
 import AvailabilityGrid from "@/components/ui/tutors/AvailabilityGrid";
+import { toast } from "sonner";
+import { createBooking, CreateBookingRequest } from "@/services/student";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -26,19 +27,38 @@ interface PageProps {
 
 export default function TutorDetailsPage({ params }: PageProps) {
   const { id } = use(params);
-  const [tutor, setTutor] = useState<any>(null); 
+  const router = useRouter();
+
+  const [tutor, setTutor] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  const [selectedSubject, setSelectedSubject] = useState("");
+  const [bookingDate, setBookingDate] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [isBooking, setIsBooking] = useState(false);
 
   useEffect(() => {
     const fetchTutorData = async () => {
       try {
         setLoading(true);
         const res = await getTutorById(id);
-        if (res.success) {
+
+        if (!res?.data) {
+          toast.error("Failed to load tutor data.");
+          return;
+        }
+
+        if (res.success && res.data) {
           setTutor(res.data);
+
+          if (res.data.subjects?.length > 0) {
+            setSelectedSubject(res.data.subjects[0].subject.id);
+          }
         }
       } catch (error) {
         console.error("Error fetching tutor details:", error);
+        toast.error("An error occurred while fetching tutor details.");
       } finally {
         setLoading(false);
       }
@@ -47,34 +67,53 @@ export default function TutorDetailsPage({ params }: PageProps) {
     fetchTutorData();
   }, [id]);
 
+  const handleCreateBooking = async () => {
+    if (!selectedSubject || !bookingDate || !startTime || !endTime) {
+      toast.error("Please fill in all booking details.");
+      return;
+    }
+
+    try {
+      setIsBooking(true);
+
+      const bookingPayload = {
+        tutorId: id,
+        subjectId: selectedSubject,
+        bookingDate: new Date(bookingDate).toISOString(),
+        startTime,
+        endTime,
+      };
+
+      const res = await createBooking(bookingPayload as CreateBookingRequest);
+
+      if (res.success && res.data) {
+        toast.success("Booking created successfully!");
+        router.push(`/payment/checkout?bookingId=${res.data.id}`);
+      } else {
+        toast.error(res.message || "Failed to create booking.");
+      }
+    } catch (error: any) {
+      console.error("Booking Error:", error);
+      toast.error("A server error occurred. Please try again.");
+    } finally {
+      setIsBooking(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex h-[70vh] flex-col items-center justify-center gap-4 bg-background">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="text-muted-foreground animate-pulse text-lg">Fetching tutor profile...</p>
-      </div>
-    );
-  }
-
-  if (!tutor) {
-    return (
-      <div className="flex h-[70vh] flex-col items-center justify-center text-center px-4">
-        <div className="h-24 w-24 rounded-full bg-muted flex items-center justify-center mb-6">
-           <XCircle className="h-12 w-12 text-muted-foreground" />
-        </div>
-        <h2 className="text-3xl font-bold text-foreground">Tutor not found</h2>
-        <p className="mt-2 text-muted-foreground max-w-md">
-          The tutor you're looking for doesn't exist or may have been removed.
+        <p className="animate-pulse text-lg text-muted-foreground">
+          Fetching tutor profile...
         </p>
-        <Link href="/tutors" className="mt-8 rounded-2xl bg-primary px-8 py-3 font-bold text-primary-foreground transition hover:bg-primary/90 shadow-lg shadow-primary/20">
-          Back to Tutors
-        </Link>
       </div>
     );
   }
 
-  // ✅ ডিস্ট্রাকচারিং (Prisma include অনুযায়ী)
-  const { 
+  if (!tutor) return <div className="py-20 text-center">Tutor not found</div>;
+
+  const {
     bio,
     experienceYears,
     hourlyRate,
@@ -82,202 +121,244 @@ export default function TutorDetailsPage({ params }: PageProps) {
     totalReviews,
     isApproved,
     user,
-    subjects, // Nested array: { subject: { id, name } }[]
-    languages, // Nested array: { language: { id, name } }[]
+    subjects,
+    languages,
     availabilities,
-    reviews
+    reviews,
   } = tutor;
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      {/* Navigation Header */}
-      <div className="sticky top-0 z-40 border-b border-border/50 bg-background/80 py-4 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link href="/tutors" className="inline-flex items-center gap-2 text-sm font-bold text-muted-foreground transition hover:text-primary">
-            <ArrowLeft className="h-4 w-4" />
-            Back to results
-          </Link>
-          <div className="flex items-center gap-3">
-            <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground transition hover:border-primary/30 hover:text-primary">
-              <Share2 className="h-4 w-4" />
-            </button>
-            <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground transition hover:border-rose-500/30 hover:text-rose-500">
-              <Heart className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* Navigation Header Can Go Here */}
 
       <div className="mx-auto mt-12 max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-3">
           
           {/* Left Column: Main Content */}
-          <div className="lg:col-span-2 space-y-12">
+          <div className="space-y-12 lg:col-span-2">
             
-            {/* Header Profile Info */}
+            {/* Profile Info */}
             <div className="flex flex-col gap-8 sm:flex-row sm:items-center lg:items-start">
               <div className="relative shrink-0">
                 <div className="absolute -inset-2 rounded-[3.5rem] bg-gradient-to-tr from-primary/40 to-secondary/40 opacity-70 blur-2xl" />
                 <img
-                  src={user?.image || "https://avatar.iran.liara.run/public"}
+                  src={user?.image || "https://via.placeholder.com/150"}
                   alt={user?.name}
                   className="relative h-44 w-44 rounded-[3rem] border border-background object-cover shadow-2xl lg:h-52 lg:w-52"
                 />
-                {isApproved && (
-                  <div className="absolute -bottom-2 -right-2 flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20 ring-4 ring-background">
-                    <CheckCircle2 className="h-5 w-5" />
-                  </div>
-                )}
               </div>
-
               <div className="flex-1 lg:pt-4">
-                <div className="flex flex-wrap items-center gap-3">
-                  <h1 className="text-4xl font-black tracking-tight text-foreground lg:text-5xl">
-                    {user?.name}
-                  </h1>
-                  <span className="rounded-xl bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-primary">
-                    Verified Tutor
-                  </span>
-                </div>
+                <h1 className="text-4xl font-black tracking-tight text-foreground lg:text-5xl">
+                  {user?.name}
+                </h1>
                 
-                <div className="mt-4 flex flex-wrap items-center gap-6">
-                  <div className="flex items-center gap-2 font-bold text-amber-500">
-                    <Star className="h-5 w-5 fill-current" />
-                    <span className="text-lg">{(averageRating || 0).toFixed(1)}</span>
-                    <span className="text-sm font-medium text-muted-foreground tracking-widest uppercase">({totalReviews || 0} reviews)</span>
+                <div className="mt-4 flex flex-wrap items-center gap-6 text-sm font-bold text-muted-foreground">
+                  {/* Rating */}
+                  <div className="flex items-center gap-1.5 rounded-full bg-yellow-500/10 px-3 py-1 text-yellow-600">
+                    <Star className="h-4 w-4 fill-current" />
+                    <span>{averageRating > 0 ? averageRating.toFixed(1) : "New"}</span>
+                    <span className="opacity-60">({totalReviews} reviews)</span>
                   </div>
-                  <div className="h-1.5 w-1.5 rounded-full bg-border" />
-                  <div className="flex items-center gap-2 font-bold text-foreground">
-                    <Clock className="h-5 w-5 text-primary" />
-                    <span>{experienceYears} Years Experience</span>
+
+                  {/* Experience */}
+                  <div className="flex items-center gap-1.5 rounded-full bg-blue-500/10 px-3 py-1 text-blue-600">
+                    <Clock className="h-4 w-4" />
+                    <span>{experienceYears} Years Exp.</span>
                   </div>
+
+                  {/* Verified Badge */}
+                  {isApproved && (
+                    <div className="flex items-center gap-1.5 rounded-full bg-green-500/10 px-3 py-1 text-green-600">
+                      <ShieldCheck className="h-4 w-4" />
+                      <span>Verified Tutor</span>
+                    </div>
+                  )}
                 </div>
 
-                {/* ✅ Subjects Section Added */}
+                {/* Subjects */}
                 <div className="mt-6 flex flex-wrap gap-2">
                   {subjects?.map((s: any) => (
-                    <span key={s.subject.id} className="flex items-center gap-1.5 rounded-xl bg-muted px-4 py-2 text-sm font-bold text-foreground">
+                    <span
+                      key={s.subject.id}
+                      className="flex items-center gap-1.5 rounded-xl bg-muted px-4 py-2 text-sm font-bold text-foreground"
+                    >
                       <BookOpen className="h-4 w-4 text-primary" />
                       {s.subject.name}
                     </span>
                   ))}
                 </div>
+
+                {/* Languages */}
+                {languages && languages.length > 0 && (
+                  <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
+                    <Globe className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-semibold text-muted-foreground">Speaks:</span>
+                    {languages.map((lang: any, index: number) => (
+                      <span key={index} className="rounded-md bg-secondary/20 px-2 py-1 text-xs font-semibold text-secondary-foreground">
+                        {lang.language?.name || lang}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* About Section */}
-            <section className="space-y-6">
-              <div className="flex items-center gap-4">
-                <h2 className="text-2xl font-black tracking-tight text-foreground uppercase tracking-widest text-sm">About Me</h2>
-                <div className="h-px flex-1 bg-border/50" />
-              </div>
-              <p className="text-lg leading-relaxed text-muted-foreground whitespace-pre-line">
-                {bio}
-              </p>
-              
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary/10 text-secondary">
-                      <Languages className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Languages</p>
-                      <p className="mt-1 font-bold text-foreground">
-                        {languages?.map((l: any) => l.language.name).join(", ") || "English"}
-                      </p>
-                    </div>
-                  </div>
+            {/* About / Bio Section */}
+            {bio && (
+              <section id="about" className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <h2 className="text-sm font-black uppercase tracking-widest text-foreground">
+                    About Me
+                  </h2>
+                  <div className="h-px flex-1 bg-border/50" />
                 </div>
-                <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                      <ShieldCheck className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Background Check</p>
-                      <p className="mt-1 font-bold text-foreground">Identity Verified</p>
-                    </div>
-                  </div>
+                <div className="rounded-3xl bg-card p-6 border border-border/50 shadow-sm">
+                  <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                    {bio}
+                  </p>
                 </div>
-              </div>
-            </section>
+              </section>
+            )}
 
-            {/* Availability Section */}
+            {/* Availability Grid */}
             <section id="availability" className="space-y-6">
               <div className="flex items-center gap-4">
-                <h2 className="text-2xl font-black tracking-tight text-foreground uppercase tracking-widest text-sm">Schedule</h2>
+                <h2 className="text-sm font-black uppercase tracking-widest text-foreground">
+                  Schedule
+                </h2>
                 <div className="h-px flex-1 bg-border/50" />
               </div>
               <AvailabilityGrid availabilities={availabilities || []} />
             </section>
 
             {/* Reviews Section */}
-            <section className="space-y-8">
-              <div className="flex items-center gap-4">
-                <h2 className="text-2xl font-black tracking-tight text-foreground uppercase tracking-widest text-sm">Student Feedback</h2>
-                <div className="h-px flex-1 bg-border/50" />
-              </div>
-              
-              <div className="grid grid-cols-1 gap-6">
-                {reviews && reviews.length > 0 ? (
-                  reviews.map((review: any) => (
-                    <div key={review.id} className="rounded-[2.5rem] border border-border/70 bg-card p-8 shadow-sm transition-all hover:border-primary/30">
-                      <div className="flex items-start gap-4">
-                        <img 
-                          src={review.student?.image || `https://api.dicebear.com/7.x/avataaars/svg?seed=${review.student?.name}`} 
-                          alt={review.student?.name}
-                          className="h-12 w-12 rounded-2xl object-cover bg-muted"
-                        />
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between">
-                            <h4 className="font-bold text-foreground">{review.student?.name}</h4>
-                            <div className="flex items-center gap-1 text-amber-500">
-                              {[...Array(5)].map((_, i) => (
-                                <Star key={i} className={`h-3 w-3 ${i < review.rating ? "fill-current" : "text-muted"}`} />
-                              ))}
-                            </div>
+            {reviews && reviews.length > 0 && (
+              <section id="reviews" className="space-y-6">
+                <div className="flex items-center gap-4">
+                  <h2 className="text-sm font-black uppercase tracking-widest text-foreground">
+                    Student Reviews
+                  </h2>
+                  <div className="h-px flex-1 bg-border/50" />
+                </div>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {reviews.map((review: any, idx: number) => (
+                    <div key={idx} className="rounded-2xl border border-border/50 bg-card p-5 shadow-sm">
+                      <div className="mb-3 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                            {review.studentName?.charAt(0) || "S"}
                           </div>
-                          <p className="mt-1 text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em]">
-                            {new Date(review.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                          </p>
-                          <p className="mt-4 text-muted-foreground leading-relaxed italic">
-                            {review?.comment}
-                          </p>
+                          <span className="font-bold text-sm">{review.studentName || "Student"}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-yellow-500">
+                          <Star className="h-3.5 w-3.5 fill-current" />
+                          <span className="text-sm font-bold">{review.rating}</span>
                         </div>
                       </div>
+                      <p className="text-sm text-muted-foreground line-clamp-3">
+                        "{review.comment}"
+                      </p>
                     </div>
-                  ))
-                ) : (
-                  <div className="rounded-[2.5rem] border border-dashed border-border p-12 text-center text-muted-foreground bg-card/30">
-                    No reviews yet. Be the first to book with {user?.name.split(" ")[0]}!
-                  </div>
-                )}
-              </div>
-            </section>
+                  ))}
+                </div>
+              </section>
+            )}
+
           </div>
 
           {/* Right Column: Booking Sidebar */}
           <aside className="lg:col-span-1">
             <div className="sticky top-28 space-y-6">
               <div className="overflow-hidden rounded-[3rem] border-4 border-primary/10 bg-card p-8 shadow-2xl shadow-primary/10">
+                {/* Hourly Rate */}
                 <div className="flex items-end justify-between border-b border-border/50 pb-6">
                   <div>
-                    <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Hourly Rate</p>
+                    <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+                      Hourly Rate
+                    </p>
                     <div className="mt-1 flex items-baseline gap-1">
-                      <span className="text-4xl font-black text-foreground">${Number(hourlyRate).toFixed(0)}</span>
-                      <span className="text-sm font-bold text-muted-foreground">/ hr</span>
+                      <span className="text-4xl font-black text-foreground">
+                        ${Number(hourlyRate).toFixed(0)}
+                      </span>
+                      <span className="text-sm font-bold text-muted-foreground">
+                        / hr
+                      </span>
                     </div>
-                  </div>
-                  <div className="flex flex-col items-end">
-                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] bg-primary/10 px-3 py-1.5 rounded-full">Top Educator</p>
                   </div>
                 </div>
 
-                <div className="space-y-4 py-8">
-                  <button className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[1.75rem] bg-primary py-5 text-lg font-black text-primary-foreground shadow-xl shadow-primary/30 transition-all hover:scale-[1.02] active:scale-[0.98]">
-                    Book a Lesson
+                {/* Booking Inputs Area */}
+                <div className="space-y-5 py-8">
+                  {/* Subject Selection */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                      Select Subject
+                    </label>
+                    <select
+                      value={selectedSubject}
+                      onChange={(e) => setSelectedSubject(e.target.value)}
+                      className="w-full rounded-2xl border border-border bg-muted/50 p-4 font-bold focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    >
+                      {subjects?.map((s: any) => (
+                        <option key={s.subject.id} value={s.subject.id}>
+                          {s.subject.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Date Selection */}
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                      <CalendarDays className="h-3 w-3" /> Booking Date
+                    </label>
+                    <input
+                      type="date"
+                      value={bookingDate}
+                      onChange={(e) => setBookingDate(e.target.value)}
+                      className="w-full rounded-2xl border border-border bg-muted/50 p-4 font-bold focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    />
+                  </div>
+
+                  {/* Time Selection */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                        <Timer className="h-3 w-3" /> Start
+                      </label>
+                      <input
+                        type="time"
+                        value={startTime}
+                        onChange={(e) => setStartTime(e.target.value)}
+                        className="w-full rounded-2xl border border-border bg-muted/50 p-4 font-bold focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                        <Timer className="h-3 w-3" /> End
+                      </label>
+                      <input
+                        type="time"
+                        value={endTime}
+                        onChange={(e) => setEndTime(e.target.value)}
+                        className="w-full rounded-2xl border border-border bg-muted/50 p-4 font-bold focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <button
+                    onClick={handleCreateBooking}
+                    disabled={isBooking}
+                    className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-[1.75rem] bg-primary py-5 text-lg font-black text-primary-foreground shadow-xl shadow-primary/30 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:hover:scale-100"
+                  >
+                    {isBooking ? (
+                      <Loader2 className="h-6 w-6 animate-spin" />
+                    ) : (
+                      "Book a Lesson"
+                    )}
                   </button>
+
                   <button className="flex w-full items-center justify-center gap-3 rounded-[1.75rem] border border-border bg-card py-5 text-lg font-bold text-card-foreground transition-all hover:border-primary/30 hover:bg-muted">
                     <MessageCircle className="h-5 w-5" />
                     Send Message
@@ -288,31 +369,13 @@ export default function TutorDetailsPage({ params }: PageProps) {
                   <div className="flex items-start gap-4">
                     <CheckCircle2 className="mt-1 h-5 w-5 shrink-0 text-primary" />
                     <p className="text-xs font-bold leading-relaxed text-foreground">
-                      Reschedule anytime up to 12 hours before.
+                      Secure payment and 100% satisfaction guarantee.
                     </p>
                   </div>
-                  <div className="flex items-start gap-4">
-                    <CheckCircle2 className="mt-1 h-5 w-5 shrink-0 text-primary" />
-                    <p className="text-xs font-bold leading-relaxed text-foreground">
-                      Satisfaction guaranteed or full refund.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Safety/Verification Badge */}
-              <div className="flex items-center gap-4 rounded-3xl border border-border bg-card p-4 shadow-sm">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100/50 text-amber-600">
-                  <ShieldCheck className="h-6 w-6" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-foreground">Secure Booking</h4>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Stripe Protected</p>
                 </div>
               </div>
             </div>
           </aside>
-          
         </div>
       </div>
     </div>

@@ -10,6 +10,7 @@ export default function SubjectsSection() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null); 
+
   
   const fetchSubjects = async () => {
     try {

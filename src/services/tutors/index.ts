@@ -31,10 +31,10 @@ export interface Tutor {
   reviews?: any[];
 }
 
-export const getAllTutors = async (): Promise<{ success: boolean; data: Tutor[]; message?: string }> => {
+export const getAllTutors = async (query: Record<string, any> = {}): Promise<{ success: boolean; data: Tutor[]; message?: string }> => {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tutors`, {
-      cache: 'no-store' // ডাটা সবসময় আপডেট রাখার জন্য
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tutors?${new URLSearchParams(query).toString()}`, {
+      cache: 'no-store'
     });
     const data = await res.json();
     return { success: data.success, data: data.data, message: data.message };

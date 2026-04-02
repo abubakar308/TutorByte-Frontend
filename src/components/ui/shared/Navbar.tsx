@@ -245,7 +245,7 @@ export default function Navbar({ user }: NavbarProps) {
                         {/* ✅ রোল অনুযায়ী ডাইনামিক অপশন */}
                         {user?.role === "STUDENT" && (
                           <Link 
-                            href="/dashboard/become-tutor"
+                            href="/become-tutor"
                             onClick={() => setProfileOpen(false)}
                             className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-primary transition hover:bg-primary/10"
                           >

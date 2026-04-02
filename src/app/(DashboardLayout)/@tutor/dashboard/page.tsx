@@ -28,53 +28,56 @@ const navItems = [
 export default function TutorDashboard() {
   const [active, setActive] = useState("dashboard");
   const [sideOpen, setSideOpen] = useState(true);
-  const [stats, setStats] = useState<TutorStats | null>(null);
+  const [stats, setStats] = useState<any | null>(null); // Type update based on new JSON
   const [user, setUser] = useState<DecodedUser | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // useEffect(() => {
-  //   const initDashboard = async () => {
-  //     try {
-  //       setLoading(true);
+  // API Call uncommented and active
+  useEffect(() => {
+    const initDashboard = async () => {
+      try {
+        setLoading(true);
   
-  //       const currentUser = await getCurrentUser();
-  //       setUser(currentUser);
+        const currentUser = await getCurrentUser();
+        setUser(currentUser);
 
-  //       const res = await getTutorDashboardStats();
-  //       if (res.success) setStats(res.data);
-  //     } catch (error) {
-  //       console.error("Dashboard Init Error:", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   initDashboard();
-  // }, []);
+        const res = await getTutorDashboardStats();
+        if (res.success) setStats(res.data);
+      } catch (error) {
+        console.error("Dashboard Init Error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    initDashboard();
+  }, []);
 
   const handleLogout = async () => {
     await logOut();
     window.location.href = "/login";
   };
 
+  // Stats mapped to the new JSON structure
   const tutorStats = [
     { 
       label: "Total Earnings", 
-      value: stats?.totalEarnings ? `$${stats.totalEarnings.toLocaleString()}` : "$0", 
+      value: stats?.overview?.totalEarnings ? `$${stats.overview.totalEarnings.toLocaleString()}` : "$0", 
       icon: DollarSign, color: "text-emerald-600", bg: "bg-emerald-500/10" 
     },
     { 
       label: "Total Sessions", 
-      value: stats?.totalSessions || 0, 
+      value: stats?.overview?.totalBookings || 0, 
       icon: BookOpen, color: "text-blue-600", bg: "bg-blue-500/10" 
     },
     { 
       label: "Avg. Rating",    
-      value: stats?.averageRating ? `${stats.averageRating.toFixed(1)}★` : "0★", 
+      value: stats?.overview?.averageRating ? `${stats.overview.averageRating.toFixed(1)}★` : "0★", 
       icon: Star, color: "text-amber-500", bg: "bg-amber-500/10" 
     },
     { 
-      label: "Active Students", 
-      value: stats?.activeStudents || 0, 
+      // Changed to 'This Month Bookings' since activeStudents isn't in the new JSON
+      label: "Monthly Bookings", 
+      value: stats?.activity?.thisMonthBookings || 0, 
       icon: Activity, color: "text-violet-600", bg: "bg-violet-500/10" 
     },
   ];

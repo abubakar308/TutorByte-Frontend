@@ -10,11 +10,12 @@ import {
   Star,
   CheckCircle2,
 } from "lucide-react";
-import { getLanguages } from "@/services/admin"; 
+import { getLanguages, Language } from "@/services/admin"; 
 export default function HeroSection() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [categories, setCategories] = useState<Language[]>([]);
+
   const [stats, setStats] = useState([
     { label: "Verified Tutors", value: "1,200+", icon: ShieldCheck },
     { label: "Active Students", value: "15K+", icon: Users },
@@ -25,7 +26,8 @@ export default function HeroSection() {
   useEffect(() => {
     const fetchCategories = async () => {
       const res = await getLanguages();
-      if (res?.success) setCategories(res.data || []);
+          const langArr = res?.data;
+setCategories(Array.isArray(langArr) ? langArr : []);
     };
     fetchCategories();
 
@@ -169,7 +171,7 @@ export default function HeroSection() {
                   <p className="text-xs font-black uppercase tracking-widest text-primary">Live Now</p>
                 </div>
                 <p className="font-bold text-card-foreground leading-snug">
-                  "Chemistry session with Dr. Aris started 5 mins ago"
+                  Web Development session with Mr. Aris started 5 mins ago
                 </p>
                 <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
                   <div className="h-full w-2/3 bg-primary rounded-full" />

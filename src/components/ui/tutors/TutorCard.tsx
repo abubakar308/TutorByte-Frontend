@@ -15,7 +15,8 @@ export default function TutorCard({ tutor }: { tutor: any }) {
     languages 
   } = tutor;
 
-  // ইউজার অবজেক্ট থেকে নাম এবং ইমেজ নিন
+  const fallbackImage = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxa1q_08JfYWirXMUJ5d0XdjdvrGUpa5mgTQ&s"
+  
   const name = user?.name || "Tutor Name";
   const image = user?.image;
 
@@ -24,7 +25,7 @@ export default function TutorCard({ tutor }: { tutor: any }) {
       {/* Image Section */}
       <div className="relative h-60 w-full">
         <img
-          src={image || "https://images.unsplash.com/photo-1544717297-fa15739a5447?q=80&w=900&auto=format&fit=crop"}
+          src={image || fallbackImage}
           alt={name}
           className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
         />

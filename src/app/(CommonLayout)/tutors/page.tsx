@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Search, SlidersHorizontal, GraduationCap, X, Globe, Loader2 } from "lucide-react";
 import TutorCard from "@/components/ui/tutors/TutorCard";
 import { getAllTutors, Tutor } from "@/services/tutors"; 
@@ -12,62 +12,67 @@ export default function TutorsListingPage() {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [languages, setLanguages] = useState<Language[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetching, setFetching] = useState(false); // শুধুমাত্র টিউটর লোড হওয়ার জন্য
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSubject, setSelectedSubject] = useState<string>("All");
   const [selectedLanguage, setSelectedLanguage] = useState<string>("All");
   const [maxPrice, setMaxPrice] = useState<number>(100);
 
+  // Initial load for subjects and languages
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        const [tutorsRes, subjectsRes, languagesRes] = await Promise.all([
-          getAllTutors(),
-          getSubjects(),
-          getLanguages()
-        ]);
-
-        if (tutorsRes.success) setTutors(tutorsRes.data);
-       const arr = subjectsRes.data ?? subjectsRes.data;
-setSubjects(Array.isArray(arr) ? arr : []);
-       const langArr = languagesRes.data? languagesRes.data : [];
-setLanguages(Array.isArray(langArr) ? langArr : []);
-        
-      } catch (error) {
-        console.error("Error loading data:", error);
-      } finally {
-        setLoading(false);
-      }
+    const loadStaticData = async () => {
+      const [subjectsRes, languagesRes] = await Promise.all([
+        getSubjects(),
+        getLanguages()
+      ]);
+      const arr = subjectsRes.data ?? [];
+      setSubjects(Array.isArray(arr) ? arr : []);
+      const langArr = languagesRes.data ?? [];
+      setLanguages(Array.isArray(langArr) ? langArr : []);
     };
-    loadData();
+    loadStaticData();
   }, []);
 
-const filteredTutors = useMemo(() => {
-  return tutors.filter((tutor) => {
-    const searchLower = searchQuery.toLowerCase();
-    
+  // Database search and filter logic
+  const loadTutors = useCallback(async () => {
+    try {
+      setFetching(true);
+      const queryParams: Record<string, any> = {
+        limit: 100, // প্রয়োজনমতো বাড়াতে পারেন
+      };
 
-    const matchesSearch =
-      tutor.user.name.toLowerCase().includes(searchLower) ||
-      tutor.bio.toLowerCase().includes(searchLower) ||
-      tutor.subjects?.some(s => s.subject.name.toLowerCase().includes(searchLower));
+      if (searchQuery) queryParams.search = searchQuery;
+      if (selectedSubject !== "All") queryParams.subject = selectedSubject; // আপনার API-তে 'subject' কলাম থাকলে
+      if (selectedLanguage !== "All") queryParams.language = selectedLanguage; // আপনার API-তে 'language' কলাম থাকলে
+      // Max price filter - backend এ হ্যান্ডেল করা থাকলে queryParams এ দিবেন
 
+      const tutorsRes = await getAllTutors(queryParams);
+      
+      // আপনার পাঠানো JSON স্ট্রাকচার অনুযায়ী tutorsRes.data.tutors নিতে হবে
+      if (tutorsRes.success) {
+        setTutors(tutorsRes.data.tutors || []); 
+      }
+    } catch (error) {
+      console.error("Error loading tutors:", error);
+    } finally {
+      setFetching(false);
+      setLoading(false);
+    }
+  }, [searchQuery, selectedSubject, selectedLanguage]);
 
-    const matchesSubject =
-      selectedSubject === "All" ||
-      tutor.subjects?.some((s) => s.subject.name === selectedSubject);
+  // যখনই ফিল্টার বা সার্চ চেঞ্জ হবে, ডাটাবেস থেকে ডাটা আসবে
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      loadTutors();
+    }, 500); // সার্চের জন্য ৫০০ms ডিবাউন্স টাইম
 
-   
-    const matchesLanguage =
-      selectedLanguage === "All" ||
-      tutor.languages?.some((l) => l.language.name === selectedLanguage);
+    return () => clearTimeout(delayDebounceFn);
+  }, [loadTutors]);
 
-    const matchesPrice = Number(tutor.hourlyRate || 0) <= maxPrice;
+  // Frontend matching for price (যেহেতু প্রাইস স্লাইডার খুব ফাস্ট চেঞ্জ হয়)
+  const finalVisibleTutors = tutors.filter(t => Number(t.hourlyRate || 0) <= maxPrice);
 
-    return matchesSearch && matchesSubject && matchesLanguage && matchesPrice;
-  });
-}, [searchQuery, selectedSubject, selectedLanguage, maxPrice, tutors]);
   if (loading) {
     return (
       <div className="flex h-[80vh] flex-col items-center justify-center gap-4 bg-background">
@@ -97,7 +102,7 @@ const filteredTutors = useMemo(() => {
             </div>
 
             <div className="relative w-full lg:max-w-md">
-              <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+              <Search className={`absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 ${fetching ? "animate-spin text-primary" : "text-muted-foreground"}`} />
               <input
                 type="text"
                 placeholder="Search by name, bio, or keyword..."
@@ -208,13 +213,17 @@ const filteredTutors = useMemo(() => {
           <main className="flex-1">
              <div className="mb-8 flex items-center justify-between">
                 <p className="text-sm font-medium text-muted-foreground">
-                  Showing <span className="font-bold text-foreground">{filteredTutors.length}</span> results
+                  Showing <span className="font-bold text-foreground">{finalVisibleTutors.length}</span> results
                 </p>
              </div>
 
-            {filteredTutors.length > 0 ? (
+            {fetching && tutors.length === 0 ? (
+              <div className="flex h-64 items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : finalVisibleTutors.length > 0 ? (
               <div className="grid gap-6 md:grid-cols-1 xl:grid-cols-2">
-                {filteredTutors.map((tutor) => (
+                {finalVisibleTutors.map((tutor) => (
                   <TutorCard key={tutor.id} tutor={tutor} />
                 ))}
               </div>
@@ -222,7 +231,7 @@ const filteredTutors = useMemo(() => {
               <div className="flex h-96 flex-col items-center justify-center rounded-[3rem] border border-dashed border-border bg-card/30 text-center">
                 <X className="h-12 w-12 text-muted-foreground" />
                 <h4 className="mt-4 text-xl font-bold">No tutors found</h4>
-                <p className="text-muted-foreground">Try adjusting your filters.</p>
+                <p className="text-muted-foreground">Try adjusting your filters or search terms.</p>
               </div>
             )}
           </main>
