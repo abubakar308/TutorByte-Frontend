@@ -170,8 +170,8 @@ export const createAvailability = async (
   data: Omit<TutorAvailability, "id">
 ): Promise<ApiResponse<TutorAvailability>> => {
   await requireRole("TUTOR");
-  return apiRequest<TutorAvailability>("/availability/slot", {
-    method: "POST",
+  return apiRequest<TutorAvailability>("/availability", {
+    method: "PUT",
     body: JSON.stringify(data),
   });
 };

@@ -4,29 +4,18 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-        port: '',
-        pathname: '/**',
-        search: '',
+        protocol: "https",
+        hostname: "ui-avatars.com",
+        port: "",
+        pathname: "/api/**",
       },
+      // অন্যান্য ডোমেইন থাকলে এখানে যোগ করুন (যেমন Google বা Cloudinary)
       {
-        protocol: 'https',
-        hostname: 's3.amazonaws.com',
-        port: '',
-        pathname: '/my-bucket/**',
-        search: '',
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+        pathname: "/**",
       },
     ],
-  },
-
-  async rewrites() {
-    return [
-      {
-        source: "/api/auth/:path*",
-        destination: `${process.env.NEXT_PUBLIC_API_URL}/api/auth/:path*`,
-      },
-    ];
   },
 };
 

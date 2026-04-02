@@ -51,7 +51,7 @@ Ensure you have [Node.js](https://nodejs.org/) installed on your local environme
 
 1. **Clone the repository:**
    ```bash
-   git clone <repository_url>
+   git clone https://github.com/abubakar308/TutorByte-Frontend
    cd tutorbyte-frontend
    ```
 

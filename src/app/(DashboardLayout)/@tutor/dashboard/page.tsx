@@ -16,6 +16,7 @@ import TutorBookingsSection from "@/components/ui/tutor/TutorBookingsSection";
 import ReviewsSection from "@/components/ui/tutor/ReviewsSection";
 import AvailabilitySection from "@/components/ui/tutor/AvailabilitySection";
 import TutorProfileSection from "@/components/ui/tutor/TutorProfileSection";
+import Link from "next/link";
 
 const navItems = [
   { id: "dashboard",    icon: LayoutDashboard, label: "Overview" },
@@ -88,9 +89,11 @@ export default function TutorDashboard() {
       {/* ── SIDEBAR ─────────────────────────────── */}
       <aside className={`${sideOpen ? "w-64" : "w-20"} hidden md:flex flex-col border-r border-border bg-card transition-all duration-500 shrink-0 z-50`}>
         <div className="flex h-20 items-center border-b border-border px-6">
+         <Link href="/" className="flex items-center gap-2">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
             <BookOpen className="h-5 w-5" />
           </div>
+          </Link>
           {sideOpen && <span className="ml-3 text-lg font-black tracking-tight text-primary uppercase">TutorByte</span>}
         </div>
 

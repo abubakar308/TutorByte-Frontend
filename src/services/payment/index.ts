@@ -19,3 +19,15 @@ export const submitManualPayment = async (data: {
 export const approvePayment = async (bookingId: string) => {
   return apiPatch<any>(`/payments/approve/${bookingId}`, {});
 };
+
+export const getPaymentHistory = async () => {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/history`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      // আপনার অথেন্টিকেশন টোকেন এখানে পাঠাতে হবে
+      "Authorization": `Bearer ${localStorage.getItem("accessToken")}`, 
+    },
+  });
+  return res.json();
+};

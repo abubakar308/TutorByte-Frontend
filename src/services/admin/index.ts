@@ -30,6 +30,12 @@ export interface AdminUser {
   createdAt: string;
   updatedAt: string;
   image?: string;
+ meta: {
+            page: string,
+            limit: number,
+            total: number,
+            totalPage: number
+        }
 }
 
 export interface AdminPayment {
@@ -128,7 +134,7 @@ export const getAdminDashboardStats = async (): Promise<ApiResponse<AdminDashboa
 export async function getAdminUsers(
   page = 1,
   limit = 10,
-  search = "",
+  searchTerm = "",
   role?: string,
   status?: string
 ): Promise<ApiResponse<AdminUser[]>> {
@@ -137,7 +143,7 @@ export async function getAdminUsers(
   const params = new URLSearchParams();
   params.append("page", String(page));
   params.append("limit", String(limit));
-  if (search) params.append("search", search);
+  if (searchTerm) params.append("searchTerm", searchTerm);
   if (role) params.append("role", role);
   if (status) params.append("status", status);
 

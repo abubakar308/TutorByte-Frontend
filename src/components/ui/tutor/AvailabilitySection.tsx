@@ -56,7 +56,7 @@ export default function AvailabilitySection() {
     fetchAvailabilities();
   }, []);
 
-  const handleAddSlot = async (e: React.FormEvent) => {
+ const handleAddSlot = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (newSlot.startTime >= newSlot.endTime) {
@@ -65,7 +65,18 @@ export default function AvailabilitySection() {
 
     setSubmitting(true);
     try {
-      const res = await createAvailability(newSlot);
+      // ডাটাকে "slots" অ্যারের ভেতরে র‍্যাপ (Wrap) করে পাঠানো হচ্ছে
+      const payload = {
+        slots: [
+          {
+            dayOfWeek: newSlot.dayOfWeek,
+            startTime: newSlot.startTime,
+            endTime: newSlot.endTime,
+          }
+        ]
+      };
+
+      const res = await createAvailability(payload as any); 
       
       if (res.success) {
         toast.success("New slot added successfully!");

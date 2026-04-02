@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { getCurrentUser, logOut, type DecodedUser } from "@/services/auth";
 import StudentBookingsSection from "@/components/ui/student/StudentBookingsSection";
 import { getStudentDashboardStats, updateStudentProfile, } from "@/services/student";
+import DynamicPaymentHistory from "@/components/ui/shared/PaymentHistory";
 
 const navItems = [
   { id: "dashboard", icon: LayoutDashboard, label: "Overview" },
@@ -44,7 +45,6 @@ export default function StudentDashboard() {
 
         const res = await getStudentDashboardStats();
 
-        console.log("Dashboard Stats Response:", res);
         if (res.success) {
            setStats(res.data);
         }
@@ -113,9 +113,11 @@ export default function StudentDashboard() {
       {/* ── SIDEBAR ── */}
       <aside className={`${sideOpen ? "w-64" : "w-20"} hidden md:flex flex-col border-r border-border bg-card transition-all duration-500 shrink-0 z-50`}>
         <div className="flex h-20 items-center border-b border-border px-6">
+      <Link href="/" className="flex items-center gap-2"> 
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
             <Sparkles className="h-5 w-5" />
           </div>
+       </Link>
           {sideOpen && <span className="ml-3 text-lg font-black tracking-tight text-primary uppercase italic">TutorByte</span>}
         </div>
 
@@ -272,10 +274,7 @@ export default function StudentDashboard() {
 
               {/* Payments & Messages Sections (Placeholder) */}
               {(active === "payments" || active === "messages") && (
-                 <div className="flex flex-col items-center justify-center min-h-[400px] rounded-[3rem] border-4 border-dashed border-border bg-card/50 text-center p-10">
-                    <h3 className="text-2xl font-black tracking-tight capitalize">{active}</h3>
-                    <p className="text-muted-foreground max-w-sm mt-2 font-medium">This feature is coming soon!</p>
-                 </div>
+                <DynamicPaymentHistory role="STUDENT" />
               )}
             </>
           )}
