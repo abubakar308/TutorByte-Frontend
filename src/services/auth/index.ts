@@ -17,7 +17,6 @@ interface RegisterPayload {
   email: string;
   password: string;
   image: string | null;
-  role: "STUDENT" | "TUTOR";
 }
 
 interface LoginPayload {
