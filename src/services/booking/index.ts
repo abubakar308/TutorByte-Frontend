@@ -16,10 +16,13 @@ export interface AdminBooking {
 }
 
 export interface PaginatedBookings {
-  data: AdminBooking[];
-  total: number;
-  page: number;
-  limit: number;
+  bookings: AdminBooking[]; 
+  meta: {                  
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 }
 
 export interface ICreateBookingPayload {
@@ -56,11 +59,14 @@ function createQuery(params: Record<string, string | number | boolean | undefine
 export const getAdminBookings = async (
   page = 1,
   limit = 10,
-  status = ""
+  status = "",
+  searchTerm = ""
 ): Promise<ApiResponse<PaginatedBookings>> => {
-  const query = createQuery({ page, limit, status });
+  // ✅ Only include status in query if it has a value
+  const params: Record<string, any> = { page, limit };
+  if (status)     params.status = status;
+  if (searchTerm) params.search = searchTerm; // check if backend uses "search" or "searchTerm"
 
-  return apiRequest<PaginatedBookings>(`/admin/bookings${query}`, {
-    method: "GET",
-  });
+  const query = createQuery(params);
+  return apiRequest<PaginatedBookings>(`/bookings${query}`, { method: "GET" });
 };

@@ -125,7 +125,7 @@ export const getTutorBookings = async (
 
   const query = params.toString() ? `?${params.toString()}` : "";
   return apiRequest<{ data: TutorBooking[]; total: number }>(
-    `/tutors/bookings${query}`,
+    `/bookings/tutor${query}`,
     { method: "GET" }
   );
 };
@@ -137,47 +137,19 @@ export const getBookingById = async (bookingId: string): Promise<ApiResponse<Tut
   });
 };
 
-export const acceptBooking = async (bookingId: string): Promise<ApiResponse> => {
-  await requireRole("TUTOR");
-  return apiRequest(`/tutors/bookings/${bookingId}/accept`, {
-    method: "POST",
-    body: JSON.stringify({}),
-  });
-};
-
-export const rejectBooking = async (bookingId: string, reason?: string): Promise<ApiResponse> => {
-  await requireRole("TUTOR");
-  return apiRequest(`/tutors/bookings/${bookingId}/reject`, {
-    method: "POST",
-    body: JSON.stringify({ reason }),
-  });
-};
-
-export const completeBooking = async (
+/**
+ * UNIVERSAL BOOKING UPDATE: Handles status changes, links, and notes for all roles.
+ */
+export const updateBookingStatus = async (
   bookingId: string,
-  notes?: string
+  data: { 
+    status?: "ACCEPTED" | "REJECTED" | "COMPLETED" | "CANCELLED";
+    reason?: string; 
+    meetingLink?: string;
+  }
 ): Promise<ApiResponse> => {
-  await requireRole("TUTOR");
-  return apiRequest(`/tutors/bookings/${bookingId}/complete`, {
-    method: "POST",
-    body: JSON.stringify({ notes }),
-  });
-};
-
-export const cancelBooking = async (bookingId: string, reason?: string): Promise<ApiResponse> => {
-  await requireRole("TUTOR");
-  return apiRequest(`/tutors/bookings/${bookingId}/cancel`, {
-    method: "POST",
-    body: JSON.stringify({ reason }),
-  });
-};
-
-export const updateBooking = async (
-  bookingId: string,
-  data: Partial<TutorBooking>
-): Promise<ApiResponse> => {
-  await requireRole("TUTOR");
-  return apiRequest(`/tutors/bookings/${bookingId}`, {
+  // Use PATCH since we are updating partial data
+  return apiRequest(`/bookings/${bookingId}`, {
     method: "PATCH",
     body: JSON.stringify(data),
   });

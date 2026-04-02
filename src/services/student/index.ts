@@ -82,7 +82,7 @@ export interface StudentReview {
 
 export const getStudentDashboardStats = async (): Promise<ApiResponse<StudentStats>> => {
   await requireRole("STUDENT");
-  return apiRequest<StudentStats>("/students/dashboard/stats", { method: "GET" });
+  return apiRequest<StudentStats>("/users/student-stats", { method: "GET" });
 };
 
 // ============ PROFILE MANAGEMENT ============
@@ -132,7 +132,7 @@ export const getStudentBookings = async (
 
   const query = params.toString() ? `?${params.toString()}` : "";
   return apiRequest<{ data: StudentBooking[]; total: number }>(
-    `/students/bookings${query}`,
+    `/bookings/student${query}`,
     { method: "GET" }
   );
 };
@@ -165,35 +165,6 @@ export const updateBooking = async (
   });
 };
 
-export const cancelBooking = async (bookingId: string, reason?: string): Promise<ApiResponse> => {
-  await requireRole("STUDENT");
-  return apiRequest(`/students/bookings/${bookingId}/cancel`, {
-    method: "POST",
-    body: JSON.stringify({ reason }),
-  });
-};
-
-export const deleteBooking = async (bookingId: string): Promise<ApiResponse> => {
-  await requireRole("STUDENT");
-  return apiRequest(`/students/bookings/${bookingId}`, {
-    method: "DELETE",
-  });
-};
-
-export const rescheduleBooking = async (
-  bookingId: string,
-  newBookingDate: string,
-  newStartTime: string
-): Promise<ApiResponse> => {
-  await requireRole("STUDENT");
-  return apiRequest(`/students/bookings/${bookingId}/reschedule`, {
-    method: "PATCH",
-    body: JSON.stringify({
-      bookingDate: newBookingDate,
-      startTime: newStartTime,
-    }),
-  });
-};
 
 // ============ TUTORS DISCOVERY ============
 
@@ -210,28 +181,6 @@ export const getRecommendedTutors = async (
   return apiRequest<RecommendedTutor[]>(`/students/recommended-tutors${query}`, {
     method: "GET",
   });
-};
-
-export const searchTutors = async (
-  query: string,
-  page = 1,
-  limit = 10,
-  subject?: string,
-  minRating?: number
-): Promise<ApiResponse<{ data: RecommendedTutor[]; total: number }>> => {
-  await requireRole("STUDENT");
-  const params = new URLSearchParams();
-  if (query) params.append("q", query);
-  if (page) params.append("page", String(page));
-  if (limit) params.append("limit", String(limit));
-  if (subject) params.append("subject", subject);
-  if (minRating) params.append("minRating", String(minRating));
-
-  const searchQuery = params.toString() ? `?${params.toString()}` : "";
-  return apiRequest<{ data: RecommendedTutor[]; total: number }>(
-    `/students/search-tutors${searchQuery}`,
-    { method: "GET" }
-  );
 };
 
 export const getTutorDetails = async (tutorId: string): Promise<ApiResponse<any>> => {
@@ -326,14 +275,16 @@ export const getReviewById = async (reviewId: string): Promise<ApiResponse<Stude
 
 export const createReview = async (
   bookingId: string,
+  tutorId: string,
   rating: number,
   comment: string
 ): Promise<ApiResponse<StudentReview>> => {
   await requireRole("STUDENT");
-  return apiRequest<StudentReview>("/students/reviews", {
+  return apiRequest<StudentReview>("/bookings/reviews", {
     method: "POST",
     body: JSON.stringify({
       bookingId,
+      tutorId,
       rating,
       comment,
     }),

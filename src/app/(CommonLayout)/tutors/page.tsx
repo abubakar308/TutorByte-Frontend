@@ -42,12 +42,13 @@ export default function TutorsListingPage() {
         limit: 100, // প্রয়োজনমতো বাড়াতে পারেন
       };
 
-      if (searchQuery) queryParams.search = searchQuery;
+      if (searchQuery) queryParams.searchTerm = searchQuery;
       if (selectedSubject !== "All") queryParams.subject = selectedSubject; // আপনার API-তে 'subject' কলাম থাকলে
       if (selectedLanguage !== "All") queryParams.language = selectedLanguage; // আপনার API-তে 'language' কলাম থাকলে
       // Max price filter - backend এ হ্যান্ডেল করা থাকলে queryParams এ দিবেন
 
       const tutorsRes = await getAllTutors(queryParams);
+
       
       if (tutorsRes.success) {
       setTutors((tutorsRes.data as any).tutors || []);
