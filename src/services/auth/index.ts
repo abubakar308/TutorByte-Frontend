@@ -16,6 +16,7 @@ interface RegisterPayload {
   name: string;
   email: string;
   password: string;
+  image: string | null;
   role: "STUDENT" | "TUTOR";
 }
 
@@ -81,7 +82,16 @@ export const loginUser = async (userData: LoginPayload): Promise<ApiResponse<Log
       cache: "no-store",
     });
 
-    const result: ApiResponse<LoginResponseData> = await res.json();
+    const data = await res.json();
+
+    if (!res.ok) {
+      return {
+        success: false,
+        message: data.error || data.message || "Invalid credentials", 
+      };
+    }
+
+    const result: ApiResponse<LoginResponseData> = data;
 
     if (result.success && result.data) {
       const cookieStore = await cookies();

@@ -1,10 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Save, User, BookOpen, Globe, Loader2, X, Search } from "lucide-react";
-import { toast } from "react-hot-toast";
 import { getLanguages, getSubjects, Language } from "@/services/admin";
 import { createTutorProfile, TutorProfile } from "@/services/tutor";
 import { Subject } from "@/types/tutor";
+import { toast } from "sonner";
 
 export default function TutorProfileSection() {
   const [loading, setLoading] = useState(true);

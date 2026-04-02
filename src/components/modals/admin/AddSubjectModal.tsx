@@ -28,18 +28,11 @@ export default function AddSubjectModal({ isOpen, onClose, initialData, onSucces
 
     try {
       const payload = { name, category };
-      let res;
 
-      if (initialData?.id) {
-        // যদি ID থাকে তবে আপডেট এপিআই কল হবে
-        res = await updateSubject(initialData.id, payload);
-      } else {
-        // নতুন সাবজেক্ট তৈরির জন্য
-        res = await createSubject(payload);
-      }
-
+      const res = await createSubject(payload);
+  
       if (res.success) {
-        toast.success(initialData ? "Subject updated!" : "Subject created!");
+        toast.success( "Subject created");
         onSuccess();
         onClose();
       } else {

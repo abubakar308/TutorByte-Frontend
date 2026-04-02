@@ -175,7 +175,6 @@ function MeetingLinkButton({ link }: { link: string }) {
 function BookingCard({ booking, onRefresh }: { booking: Booking; onRefresh: () => void; }) {
   const [showReview, setShowReview] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
-  const [cancelling, setCancelling] = useState(false);
 
   const status = STATUS_MAP[booking.status] ?? STATUS_MAP.PENDING;
   const payment = booking.payment;
@@ -237,12 +236,6 @@ function BookingCard({ booking, onRefresh }: { booking: Booking; onRefresh: () =
           {booking.status === "COMPLETED" && (
             <button onClick={() => setShowReview(true)} className="flex items-center gap-2 rounded-xl border border-border px-5 py-2.5 text-xs font-black hover:bg-muted transition">
               <Star className="h-4 w-4" /> Review
-            </button>
-          )}
-
-          {booking.status === "PENDING" && (
-            <button onClick={handleCancel} disabled={cancelling} className="ml-auto flex items-center gap-2 rounded-xl border border-rose-200 text-rose-500 px-5 py-2.5 text-xs font-black hover:bg-rose-50 transition">
-              {cancelling ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <X className="h-3.5 w-3.5" />} Cancel
             </button>
           )}
         </div>
