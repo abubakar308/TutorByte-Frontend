@@ -18,6 +18,7 @@ import PaymentsSection from "@/components/ui/admin/PaymentsSection";
 import BookingsSection from "@/components/ui/admin/BookingsSection";
 import Link from "next/link";
 import SubjectsSection from "@/components/ui/admin/SubjectsSection";
+import LanguagesSection from "@/components/ui/admin/LanguageSection";
 
 // ─────────────────────────────────────────────────────────────
 //  MAIN ADMIN DASHBOARD
@@ -188,72 +189,13 @@ const platformStats = [
 
             {/* New Sections using design from File 1 */}
             {active === "subjects" && <SubjectsSection />}
-            {active === "languages" && <LanguagesManagement />}
+            {active === "languages" && <LanguagesSection />}
             {active === "admins" && <AdminsManagement />}
           </div>
         </main>
       </div>
     </div>
   );
-}
-
-// ─────────────────────────────────────────────────────────────
-//  SUB-COMPONENTS (Subjects, Languages, Admins)
-// ─────────────────────────────────────────────────────────────
-
-function SubjectsManagement() {
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold">Manage Subjects</h2>
-        <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-1.5">
-          <Search className="h-4 w-4 text-muted-foreground" />
-          <input placeholder="Search subjects..." className="bg-transparent text-sm outline-none" />
-        </div>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {/* Map your dynamic subjects here */}
-        <div className="p-5 rounded-2xl border border-border bg-card hover:border-primary/50 transition group">
-           <div className="flex justify-between items-start mb-3">
-             <span className="text-2xl">📐</span>
-             <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition">
-                <button className="p-1.5 hover:bg-muted rounded-md"><Pencil className="h-3.5 w-3.5" /></button>
-                <button className="p-1.5 hover:bg-rose-50 text-rose-500 rounded-md"><Trash2 className="h-3.5 w-3.5" /></button>
-             </div>
-           </div>
-           <p className="font-bold">Mathematics</p>
-           <p className="text-xs text-muted-foreground">142 Active Teachers</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function LanguagesManagement() {
-    return (
-      <div className="rounded-2xl border border-border bg-card overflow-hidden">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-muted/50 text-muted-foreground font-bold uppercase text-[10px] tracking-widest">
-            <tr>
-              <th className="px-6 py-4">Language</th>
-              <th className="px-6 py-4">Code</th>
-              <th className="px-6 py-4">Usage</th>
-              <th className="px-6 py-4 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            <tr>
-              <td className="px-6 py-4 font-semibold">English</td>
-              <td className="px-6 py-4"><span className="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-mono">EN</span></td>
-              <td className="px-6 py-4 text-muted-foreground">389 Teachers</td>
-              <td className="px-6 py-4 text-right">
-                <button className="text-primary font-bold hover:underline">Edit</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    );
 }
 
 function AdminsManagement() {

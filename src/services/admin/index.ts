@@ -444,7 +444,7 @@ export const createSubject = async (data: {
   
   await requireRole("ADMIN");
 
-  return apiRequest<Subject>(`/subjects`, {
+  return apiRequest<Subject>(`/subject`, {
     method: "POST",
     body: JSON.stringify(data),
   });
@@ -467,8 +467,8 @@ export const getSubjects = async (
 
 // ============ LANGUAGE MANAGEMENT ============
 
-export const createLanguage = async (data: { name: string; code: string }): Promise<ApiResponse<Language>> => {
-  return apiRequest<Language>(`/languages`, {
+export const createLanguage = async (data: { name: string; }): Promise<ApiResponse<Language>> => {
+  return apiRequest<Language>(`/language`, {
     method: "POST",
     body: JSON.stringify(data),
   });

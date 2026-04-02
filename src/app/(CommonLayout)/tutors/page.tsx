@@ -12,7 +12,7 @@ export default function TutorsListingPage() {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [languages, setLanguages] = useState<Language[]>([]);
   const [loading, setLoading] = useState(true);
-  const [fetching, setFetching] = useState(false); // শুধুমাত্র টিউটর লোড হওয়ার জন্য
+  const [fetching, setFetching] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSubject, setSelectedSubject] = useState<string>("All");
@@ -49,9 +49,8 @@ export default function TutorsListingPage() {
 
       const tutorsRes = await getAllTutors(queryParams);
       
-      // আপনার পাঠানো JSON স্ট্রাকচার অনুযায়ী tutorsRes.data.tutors নিতে হবে
       if (tutorsRes.success) {
-        setTutors(tutorsRes.data.tutors || []); 
+      setTutors((tutorsRes.data as any).tutors || []);
       }
     } catch (error) {
       console.error("Error loading tutors:", error);

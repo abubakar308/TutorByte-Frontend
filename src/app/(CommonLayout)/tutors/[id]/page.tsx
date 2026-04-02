@@ -142,7 +142,7 @@ export default function TutorDetailsPage({ params }: PageProps) {
               <div className="relative shrink-0">
                 <div className="absolute -inset-2 rounded-[3.5rem] bg-gradient-to-tr from-primary/40 to-secondary/40 opacity-70 blur-2xl" />
                 <img
-                  src={user?.image || "https://via.placeholder.com/150"}
+                  src={user?.image || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxa1q_08JfYWirXMUJ5d0XdjdvrGUpa5mgTQ&s"}
                   alt={user?.name}
                   className="relative h-44 w-44 rounded-[3rem] border border-background object-cover shadow-2xl lg:h-52 lg:w-52"
                 />
