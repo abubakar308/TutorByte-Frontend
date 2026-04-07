@@ -63,14 +63,14 @@ export default function HeroSection() {
           <div className="mt-7 flex flex-wrap items-center gap-3">
             <Link
               href="/tutors"
-              className="group inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition hover:-translate-y-0.5 hover:bg-primary/90"
+              className="group inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition hover:-translate-y-0.5 hover:scale-[1.01] hover:bg-primary/90"
             >
               Get Started
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Link>
             <Link
               href="/become-tutor"
-              className="inline-flex h-12 items-center justify-center rounded-2xl border border-border bg-card px-6 text-sm font-semibold text-foreground transition hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
+              className="inline-flex h-12 items-center justify-center rounded-2xl border border-border bg-card px-6 text-sm font-semibold text-foreground transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
             >
               Become a Tutor
             </Link>
@@ -136,7 +136,7 @@ export default function HeroSection() {
 
         <div className="relative z-10 hidden lg:block">
           <div className="relative mx-auto max-w-xl">
-            <div className="absolute -left-10 top-12 z-20 rounded-3xl border border-border/80 bg-card/90 p-4 shadow-xl backdrop-blur transition hover:-translate-y-1">
+            <div className="tb-float absolute -left-10 top-12 z-20 rounded-3xl border border-border/60 bg-card/65 p-4 shadow-xl backdrop-blur-xl transition hover:-translate-y-1">
               <div className="flex items-center gap-4">
                 <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-500">
                   <CalendarClock className="h-5 w-5" />
@@ -149,6 +149,7 @@ export default function HeroSection() {
             </div>
 
             <div className="relative overflow-hidden rounded-[2.5rem] border border-border/70 bg-muted shadow-2xl shadow-primary/10">
+              <div className="tb-glow pointer-events-none absolute -right-16 -top-16 z-10 h-44 w-44 rounded-full bg-primary/20 blur-3xl" />
               <img
                 src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop"
                 alt="Student learning online with tutor"
@@ -157,7 +158,7 @@ export default function HeroSection() {
               <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
             </div>
 
-            <div className="absolute -bottom-8 -right-8 z-20 w-72 rounded-3xl border border-border/80 bg-card/90 p-5 shadow-xl backdrop-blur transition hover:-translate-y-1">
+            <div className="tb-float absolute -bottom-8 -right-8 z-20 w-72 rounded-3xl border border-border/60 bg-card/65 p-5 shadow-xl backdrop-blur-xl transition hover:-translate-y-1">
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="h-2 w-2 rounded-full bg-primary" />
@@ -176,7 +177,7 @@ export default function HeroSection() {
               </div>
             </div>
 
-            <div className="absolute right-8 top-10 z-20 rounded-2xl border border-border/70 bg-card/85 px-3 py-2 text-xs text-muted-foreground shadow-md backdrop-blur transition hover:-translate-y-1">
+            <div className="tb-float absolute right-8 top-10 z-20 rounded-2xl border border-border/60 bg-card/65 px-3 py-2 text-xs text-muted-foreground shadow-md backdrop-blur-xl transition hover:-translate-y-1">
               <span className="font-semibold text-foreground">4.9/5</span> average tutor rating
               <Star className="ml-2 inline h-3.5 w-3.5 fill-amber-400 text-amber-400" />
             </div>

@@ -59,7 +59,7 @@ export default function LanguageCategoriesSection() {
               <Link
                 key={lang.id}
                 href={`/tutors?language=${lang.id}`}
-                className="group relative flex h-full min-h-[250px] flex-col overflow-hidden rounded-2xl border border-border/70 bg-card p-7 transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5"
+                className="tb-card group relative flex h-full min-h-[250px] flex-col overflow-hidden rounded-2xl border border-border/70 bg-card p-7"
               >
                 <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-primary/5 blur-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                 

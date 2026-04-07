@@ -12,13 +12,13 @@ const stats = [
 export default function StatsSection() {
   return (
     <section className="relative z-20 mx-auto -mt-4 max-w-7xl px-4 sm:px-6 lg:px-8">
-      <div className="grid gap-4 rounded-3xl border border-border/60 bg-card/75 p-4 shadow-xl shadow-primary/5 backdrop-blur-sm sm:grid-cols-2 lg:grid-cols-4 lg:gap-5 lg:p-6">
+      <div className="grid gap-4 rounded-3xl border border-border/60 bg-card/80 p-4 shadow-xl shadow-primary/5 backdrop-blur-sm sm:grid-cols-2 lg:grid-cols-4 lg:gap-5 lg:p-6">
         {stats.map((item) => {
           const Icon = item.icon;
           return (
             <article
               key={item.label}
-              className="rounded-2xl border border-border/60 bg-background/70 p-4 transition hover:-translate-y-1 hover:border-primary/25 hover:shadow-md"
+              className="tb-card rounded-2xl border border-border/60 bg-background/75 p-4"
             >
               <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Icon className="h-5 w-5" />

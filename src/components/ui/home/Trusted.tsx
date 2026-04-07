@@ -23,7 +23,7 @@ const trustPoints = [
 
 export default function TrustSection() {
   return (
-    <section id="trust" className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-primary to-violet-600 py-24">
+    <section id="trust" className="relative overflow-hidden bg-gradient-to-br from-indigo-700 via-primary to-violet-700 py-24">
       <div className="pointer-events-none absolute left-0 top-0 h-full w-full opacity-25">
         <div className="absolute -left-24 -top-24 h-96 w-96 rounded-full bg-white blur-[120px]" />
         <div className="absolute -right-24 -bottom-24 h-96 w-96 rounded-full bg-white blur-[120px]" />
@@ -49,11 +49,11 @@ export default function TrustSection() {
           {trustPoints.map((point, index) => {
             const Icon = point.icon;
             return (
-              <div 
+              <div
                 key={index}
-                className="group relative rounded-2xl border border-white/20 bg-white/10 p-7 backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 hover:bg-white/15 hover:shadow-xl"
+                className="tb-card group relative rounded-2xl border border-white/25 bg-white/12 p-7 backdrop-blur-md"
               >
-                <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-br from-white/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                 
                 <div className={`relative mb-5 flex h-12 w-12 items-center justify-center rounded-xl ${point.color}`}>
                   <Icon className="h-6 w-6" />

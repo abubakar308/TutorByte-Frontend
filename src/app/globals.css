@@ -32,7 +32,7 @@ html.dark {
   --secondary-foreground: #0b1120;
 
   --muted: #1f2937;
-  --muted-foreground: #9ca3af;
+  --muted-foreground: #b6c2d4;
 
   --card: #111827;
   --card-foreground: #f9fafb;
@@ -66,6 +66,47 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+@keyframes tb-float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes tb-glow {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.tb-card {
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease,
+    border-color 220ms ease;
+}
+
+.tb-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px -24px color-mix(in oklab, var(--primary) 45%, transparent);
+  border-color: color-mix(in oklab, var(--primary) 35%, var(--border));
+}
+
+.tb-float {
+  animation: tb-float 5s ease-in-out infinite;
+}
+
+.tb-glow {
+  animation: tb-glow 4.5s ease-in-out infinite;
 }
 
 

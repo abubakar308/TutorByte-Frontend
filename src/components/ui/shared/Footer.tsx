@@ -45,7 +45,7 @@ export default function Footer() {
                   href={social.href}
                   target="_blank"
                   aria-label={social.label}
-                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/70 bg-muted text-muted-foreground transition-all hover:-translate-y-1 hover:border-primary/30 hover:bg-primary hover:text-primary-foreground"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-border/70 bg-muted text-muted-foreground transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:border-primary/30 hover:bg-primary hover:text-primary-foreground"
                 >
                   <social.icon className="h-5 w-5" />
                 </Link>
@@ -58,10 +58,10 @@ export default function Footer() {
               Platform
             </h4>
             <ul className="mt-8 space-y-4 text-sm font-medium text-muted-foreground">
-              <li><Link href="/tutors" className="hover:text-primary transition-colors flex items-center gap-2 group"><ArrowRight className="h-3 w-3 opacity-0 -ml-5 transition-all group-hover:opacity-100 group-hover:ml-0" /> Browse Tutors</Link></li>
-              <li><Link href="/#how-it-works" className="hover:text-primary transition-colors flex items-center gap-2 group"><ArrowRight className="h-3 w-3 opacity-0 -ml-5 transition-all group-hover:opacity-100 group-hover:ml-0" /> Our Process</Link></li>
-              <li><Link href="/#subjects" className="hover:text-primary transition-colors flex items-center gap-2 group"><ArrowRight className="h-3 w-3 opacity-0 -ml-5 transition-all group-hover:opacity-100 group-hover:ml-0" /> Expert Subjects</Link></li>
-              <li><Link href="/#reviews" className="hover:text-primary transition-colors flex items-center gap-2 group"><ArrowRight className="h-3 w-3 opacity-0 -ml-5 transition-all group-hover:opacity-100 group-hover:ml-0" /> Success Stories</Link></li>
+              <li><Link href="/tutors" className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"><ArrowRight className="h-3 w-3 opacity-0 -ml-5 transition-all group-hover:opacity-100 group-hover:ml-0" /> Browse Tutors</Link></li>
+              <li><Link href="/#how-it-works" className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"><ArrowRight className="h-3 w-3 opacity-0 -ml-5 transition-all group-hover:opacity-100 group-hover:ml-0" /> Our Process</Link></li>
+              <li><Link href="/#subjects" className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"><ArrowRight className="h-3 w-3 opacity-0 -ml-5 transition-all group-hover:opacity-100 group-hover:ml-0" /> Expert Subjects</Link></li>
+              <li><Link href="/#reviews" className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"><ArrowRight className="h-3 w-3 opacity-0 -ml-5 transition-all group-hover:opacity-100 group-hover:ml-0" /> Success Stories</Link></li>
             </ul>
           </div>
 
@@ -78,8 +78,8 @@ export default function Footer() {
                 <PhoneCall className="h-5 w-5 text-primary shrink-0" />
                 <span>+880 1234-567890</span>
               </li>
-              <li><Link href="/contact" className="hover:text-primary transition-colors flex items-center gap-2 group"><ArrowRight className="h-3 w-3 opacity-0 -ml-5 transition-all group-hover:opacity-100 group-hover:ml-0" /> Contact Us</Link></li>
-              <li><Link href="/privacy" className="hover:text-primary transition-colors flex items-center gap-2 group"><ArrowRight className="h-3 w-3 opacity-0 -ml-5 transition-all group-hover:opacity-100 group-hover:ml-0" /> Privacy Policy</Link></li>
+              <li><Link href="/contact" className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"><ArrowRight className="h-3 w-3 opacity-0 -ml-5 transition-all group-hover:opacity-100 group-hover:ml-0" /> Contact Us</Link></li>
+              <li><Link href="/privacy" className="hover:text-primary transition-colors duration-200 flex items-center gap-2 group"><ArrowRight className="h-3 w-3 opacity-0 -ml-5 transition-all group-hover:opacity-100 group-hover:ml-0" /> Privacy Policy</Link></li>
             </ul>
           </div>
 
@@ -102,7 +102,7 @@ export default function Footer() {
                   id="newsletter-email"
                   type="email"
                   placeholder="Email address"
-                  className="w-full rounded-2xl border border-border bg-background py-3 pl-11 pr-4 text-sm font-medium outline-none ring-offset-background transition-all focus:border-primary/40 focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-2xl border border-border bg-background py-3 pl-11 pr-4 text-sm font-medium outline-none ring-offset-background transition-all placeholder:text-muted-foreground/80 focus:border-primary/40 focus:ring-2 focus:ring-primary/20"
                 />
               </div>
               <button

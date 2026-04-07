@@ -39,16 +39,16 @@ export default function HowItWorksSection() {
       </div>
 
       <div className="relative grid gap-8 md:grid-cols-3">
-        <div className="absolute left-0 top-1/3 -z-10 hidden w-full border-t border-dashed border-border/60 md:block" />
+        <div className="absolute left-[10%] right-[10%] top-1/3 -z-10 hidden h-px bg-gradient-to-r from-transparent via-primary/35 to-transparent md:block" />
 
         {steps.map((step, index) => {
           const Icon = step.icon;
           return (
             <div
               key={step.title}
-              className="group relative flex min-h-[280px] flex-col items-center rounded-2xl border border-border/70 bg-card p-7 text-center transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/25 hover:shadow-xl hover:shadow-primary/5"
+              className="tb-card group relative flex min-h-[280px] flex-col items-center rounded-2xl border border-border/70 bg-card p-7 text-center"
             >
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full border border-border bg-background px-4 py-1 text-xs font-bold text-primary shadow-sm transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full border border-primary/25 bg-background px-4 py-1 text-xs font-bold text-primary shadow-sm transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                 STEP 0{index + 1}
               </div>
 

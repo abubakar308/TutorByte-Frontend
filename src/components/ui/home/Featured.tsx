@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, AlertCircle, Star, Users2 } from "lucide-react";
+import { AlertCircle, ArrowRight, Star, Users2 } from "lucide-react";
 import TutorCard from "@/components/ui/tutors/TutorCard";
 import { getAllTutors, Tutor } from "@/services/tutors";
 
@@ -19,33 +19,115 @@ export default function FeaturedTutorsSection() {
       try {
         setLoading(true);
         setError("");
-        const tutorsRes = await getAllTutors();
-        if (tutorsRes.success && Array.isArray(tutorsRes.data)) {
-          const featured = tutorsRes.data
-            .filter((t) => t.isApproved)
-            .slice(0, 12);
 
-          setTutors(featured);
+        const tutorsRes = await getAllTutors();
+
+        const tutorsData = tutorsRes?.data?.tutors;
+
+        if (tutorsRes?.success && Array.isArray(tutorsData)) {
+          const approvedTutors = tutorsData.filter((t: Tutor) => {
+            return (
+              t?.isApproved &&
+              t?.user?.name &&
+              t?.bio &&
+              Array.isArray(t?.subjects) &&
+              t.subjects.length > 0 &&
+              Array.isArray(t?.languages) &&
+              t.languages.length > 0
+            );
+          });
+
+          setTutors(approvedTutors);
         } else {
-          setError(tutorsRes.message || "Unable to load tutors right now.");
+          setError(tutorsRes?.message || "Unable to load tutors right now.");
         }
-      } catch (error) {
-        console.error("Error loading tutors:", error);
-        setError("Something went wrong while loading top tutors.");
+      } catch (err) {
+        console.error("Error loading tutors:", err);
+        setError("Something went wrong while loading featured tutors.");
       } finally {
         setLoading(false);
       }
     };
+
     loadData();
   }, []);
 
-  const visibleTutors = [...tutors]
-    .sort((a, b) => {
-      if (activeTab === "popular") return (b.totalReviews || 0) - (a.totalReviews || 0);
-      if (activeTab === "new") return Number(a.experienceYears || 0) - Number(b.experienceYears || 0);
-      return (b.averageRating || 0) - (a.averageRating || 0);
-    })
-    .slice(0, 8);
+  const visibleTutors = useMemo(() => {
+    const approvedTutors = [...tutors];
+
+    if (activeTab === "top") {
+      return approvedTutors
+        .filter(
+          (tutor) =>
+            Number(tutor?.averageRating || 0) >= 4 &&
+            Number(tutor?.totalReviews || 0) >= 1
+        )
+        .sort((a, b) => {
+          const ratingDiff =
+            Number(b?.averageRating || 0) - Number(a?.averageRating || 0);
+
+          if (ratingDiff !== 0) return ratingDiff;
+
+          return Number(b?.totalReviews || 0) - Number(a?.totalReviews || 0);
+        })
+        .slice(0, 8);
+    }
+
+    if (activeTab === "popular") {
+      return approvedTutors
+        .filter(
+          (tutor) =>
+            Number(tutor?._count?.bookings || 0) > 0 ||
+            Number(tutor?.totalReviews || 0) > 0
+        )
+        .sort((a, b) => {
+          const bookingDiff =
+            Number(b?._count?.bookings || 0) - Number(a?._count?.bookings || 0);
+
+          if (bookingDiff !== 0) return bookingDiff;
+
+          const reviewDiff =
+            Number(b?.totalReviews || 0) - Number(a?.totalReviews || 0);
+
+          if (reviewDiff !== 0) return reviewDiff;
+
+          return Number(b?.averageRating || 0) - Number(a?.averageRating || 0);
+        })
+        .slice(0, 8);
+    }
+
+    return approvedTutors
+      .sort(
+        (a, b) =>
+          new Date(b?.createdAt || "").getTime() -
+          new Date(a?.createdAt || "").getTime()
+      )
+      .slice(0, 8);
+  }, [tutors, activeTab]);
+
+  const emptyStateContent = useMemo(() => {
+    if (activeTab === "top") {
+      return {
+        title: "No top-rated tutors available right now",
+        description:
+          "We could not find tutors with strong ratings yet. Explore all tutors to find the right educator for you.",
+      };
+    }
+
+    if (activeTab === "popular") {
+      return {
+        title: "No popular tutors found yet",
+        description:
+          "There are no tutors with enough activity yet. Browse all tutors and discover new learning opportunities.",
+      };
+    }
+
+    return {
+      title: "No newly added tutors available right now",
+      description:
+        "We could not find any recently approved tutors at the moment. Please check again later.",
+    };
+  }, [activeTab]);
 
   return (
     <section id="tutors" className="relative overflow-hidden bg-muted/30 py-24">
@@ -56,14 +138,17 @@ export default function FeaturedTutorsSection() {
               <Star className="h-3.5 w-3.5 fill-primary" />
               Top Educators
             </div>
+
             <h2 className="mt-5 text-3xl font-black tracking-tight text-foreground sm:text-4xl lg:text-5xl">
               Learn from our <span className="text-primary">top-rated tutors</span>.
             </h2>
+
             <p className="mt-3 text-base text-muted-foreground">
-              Carefully reviewed educator profiles with strong ratings and proven results.
+              Carefully reviewed educator profiles with strong ratings and proven
+              results.
             </p>
           </div>
-          
+
           <div className="flex flex-wrap items-center gap-3">
             {[
               { key: "top", label: "Top Rated" },
@@ -82,6 +167,7 @@ export default function FeaturedTutorsSection() {
                 {tab.label}
               </button>
             ))}
+
             <Link
               href="/tutors"
               className="group inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-semibold text-foreground transition hover:border-primary/30 hover:text-primary"
@@ -102,13 +188,18 @@ export default function FeaturedTutorsSection() {
             ))}
           </div>
         ) : error ? (
-          <div className="rounded-2xl border border-dashed border-border bg-card/50 p-12 text-center">
+          <div className="rounded-2xl border border-dashed border-border bg-card/60 p-12 text-center">
             <AlertCircle className="mx-auto mb-4 h-10 w-10 text-rose-500" />
-            <p className="text-base font-semibold text-foreground">Unable to load tutors</p>
-            <p className="mt-1 text-sm text-muted-foreground">{error}</p>
+            <p className="text-base font-semibold text-foreground">
+              We could not load tutors right now
+            </p>
+            <p className="mx-auto mt-1 max-w-xl text-sm text-muted-foreground">
+              {error} Please try again or browse all educators to continue your
+              learning journey.
+            </p>
             <Link
               href="/tutors"
-              className="mt-5 inline-flex h-10 items-center justify-center rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
+              className="mt-5 inline-flex h-10 items-center justify-center rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:-translate-y-0.5 hover:bg-primary/90"
             >
               Browse Tutors
             </Link>
@@ -122,12 +213,15 @@ export default function FeaturedTutorsSection() {
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl border border-dashed border-border bg-card/50 p-12 text-center">
+          <div className="rounded-2xl border border-dashed border-border bg-card/60 p-12 text-center">
             <Users2 className="mx-auto mb-4 h-11 w-11 text-muted-foreground/50" />
-            <p className="text-base font-semibold text-foreground">No featured tutors available right now</p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Explore all tutors or complete your profile to become a verified TutorByte educator.
+            <p className="text-base font-semibold text-foreground">
+              {emptyStateContent.title}
             </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {emptyStateContent.description}
+            </p>
+
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <Link
                 href="/tutors"
