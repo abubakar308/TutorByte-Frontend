@@ -1,4 +1,5 @@
 import HeroSection from "@/components/ui/home/Hero";
+import StatsSection from "@/components/ui/home/Stats";
 import CategoriesSection from "@/components/ui/home/Categories";
 import FeaturedTutorsSection from "@/components/ui/home/Featured";
 import HowItWorksSection from "@/components/ui/home/Howitwork";
@@ -15,8 +16,9 @@ export default function HomePage() {
 
       <div className="relative space-y-0">
         <HeroSection />
+        <StatsSection />
         
-        <div className="bg-card/30 backdrop-blur-sm -mt-20 relative z-20 rounded-[4rem] px-4 md:px-0">
+        <div className="bg-card/30 backdrop-blur-sm mt-8 relative z-20 rounded-[4rem] px-4 md:px-0">
           <CategoriesSection />
         </div>
 

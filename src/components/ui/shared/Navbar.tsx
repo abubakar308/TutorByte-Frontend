@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Bell,
   ChevronDown,
@@ -60,7 +60,14 @@ const roleConfig: Record<
 export default function Navbar({ user }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const savedTheme = localStorage.getItem("theme");
+    return (
+      savedTheme === "dark" ||
+      (!savedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches)
+    );
+  });
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -68,18 +75,13 @@ export default function Navbar({ user }: NavbarProps) {
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const pathname = usePathname();
 
   const cfg = user?.role ? roleConfig[user.role] : null;
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    if (
-      savedTheme === "dark" ||
-      (!savedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches)
-    ) {
-      document.documentElement.classList.add("dark");
-    }
-  }, []);
+    document.documentElement.classList.toggle("dark", darkMode);
+  }, [darkMode]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 12);
@@ -147,7 +149,11 @@ export default function Navbar({ user }: NavbarProps) {
               <Link
                 key={item.href}
                 href={item.href}
-                className="rounded-xl px-4 py-2 text-sm font-medium text-foreground/70 transition-all hover:bg-primary/5 hover:text-primary"
+                className={`rounded-xl px-4 py-2 text-sm font-medium transition-all ${
+                  pathname === item.href
+                    ? "bg-primary/10 text-primary"
+                    : "text-foreground/70 hover:bg-primary/5 hover:text-primary"
+                }`}
               >
                 {item.label}
               </Link>
@@ -242,7 +248,6 @@ export default function Navbar({ user }: NavbarProps) {
                           My Profile
                         </Link>
 
-                        {/* ✅ রোল অনুযায়ী ডাইনামিক অপশন */}
                         {user?.role === "STUDENT" && (
                           <Link 
                             href="/become-tutor"

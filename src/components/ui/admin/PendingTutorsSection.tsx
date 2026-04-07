@@ -108,7 +108,7 @@ export default function TutorsManagement() {
             <div key={t.id} className="flex items-center gap-4 px-6 py-4 hover:bg-muted/30 transition">
                    <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-primary/10 flex items-center justify-center border border-border">
                                {t?.image ? (
-                                 <img src={t.image} alt={t.name} fill className="object-cover" sizes="44px" />
+                                 <img src={t.image} alt={t.name} className="object-cover" sizes="44px" />
                                ) : (
                                  <span className="text-sm font-bold text-primary">{getInitials(t.name)}</span>
                                )}

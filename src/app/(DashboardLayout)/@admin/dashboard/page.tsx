@@ -42,8 +42,8 @@ export default function AdminDashboard() {
       try {
         setLoading(true);
         const res = await getAdminDashboardStats();
-        if (res.success) {
-          setStats(res.data);
+        if (res.success && res.data) {
+          setStats(res.data || []);
         }
       } catch (error) {
         console.error("Failed to fetch admin stats", error);
@@ -58,7 +58,7 @@ export default function AdminDashboard() {
     { label: "Total Students", value: stats?.totalStudents || 0, icon: Users, change: "Active Members", positive: true },
     { label: "Total Teachers", value: stats?.totalTutors || 0, icon: UserCheck, change: "Verified Experts", positive: true },
     { label: "Total Bookings", value: stats?.totalBookings || 0, icon: BookOpen, change: "All Sessions", positive: null },
-    { label: "Net Revenue",    value: `$${stats?.totalRevenue || 0}`, icon: Activity, change: "Platform Earnings", positive: true },
+    // { label: "Net Revenue",    value: `$${stats?.totalRevenue || 0}`, icon: Activity, change: "Platform Earnings", positive: true },
   ];
 
   return (

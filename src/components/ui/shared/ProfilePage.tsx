@@ -61,14 +61,14 @@ export default function ProfilePage() {
             <div className="relative h-32 w-32 rounded-full border-4 border-card bg-muted flex items-center justify-center overflow-hidden shadow-md">
               {profile.image ? (
                 <Image
-                  src={profile.image}
-                  alt={profile.name}
+                  src={profile?.image}
+                  alt={profile?.name}
                   fill
                   className="object-cover"
                 />
               ) : (
                 <span className="text-4xl font-black text-primary/40">
-                  {getInitials(profile.name)}
+                  {getInitials(profile?.name)}
                 </span>
               )}
             </div>
@@ -79,10 +79,10 @@ export default function ProfilePage() {
                 <h1 className="text-2xl font-black text-foreground">
                   {profile.name}
                 </h1>
-                {profile.isVerified ? (
+                {profile?.isVerified ? (
                   <BadgeCheck className="h-6 w-6 text-blue-500 fill-blue-500/10" />
                 ) : (
-                  <ShieldAlert className="h-5 w-5 text-muted-foreground" title="Not Verified" />
+                  <ShieldAlert className="h-5 w-5 text-muted-foreground" />
                 )}
               </div>
               <p className="text-muted-foreground flex items-center gap-2 font-medium">

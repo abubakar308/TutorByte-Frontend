@@ -20,26 +20,24 @@
   --border: #e5e7eb;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* 🌙 Dark Mode */
-    --background: #0b1120;
-    --foreground: #e5e7eb;
+html.dark {
+  /* 🌙 Dark Mode */
+  --background: #0b1120;
+  --foreground: #e5e7eb;
 
-    --primary: #6366f1;
-    --primary-foreground: #ffffff;
+  --primary: #6366f1;
+  --primary-foreground: #ffffff;
 
-    --secondary: #22d3ee;
-    --secondary-foreground: #0b1120;
+  --secondary: #22d3ee;
+  --secondary-foreground: #0b1120;
 
-    --muted: #1f2937;
-    --muted-foreground: #9ca3af;
+  --muted: #1f2937;
+  --muted-foreground: #9ca3af;
 
-    --card: #111827;
-    --card-foreground: #f9fafb;
+  --card: #111827;
+  --card-foreground: #f9fafb;
 
-    --border: #1f2937;
-  }
+  --border: #1f2937;
 }
 
 @theme inline {
