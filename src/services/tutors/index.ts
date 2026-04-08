@@ -38,16 +38,59 @@ export interface Tutor {
   };
 }
 
-export const getAllTutors = async (query: Record<string, any> = {}): Promise<{ success: boolean; data: Tutor[]; message?: string }> => {
+export type TutorsMeta = {
+  page: number;
+  limit: number;
+  total: number;
+};
+
+export type TutorsPayload = {
+  tutors: Tutor[];
+  meta: TutorsMeta;
+};
+
+export const getAllTutors = async (
+  query: Record<string, any> = {}
+): Promise<{ success: boolean; data: TutorsPayload; message?: string }> => {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tutors?${new URLSearchParams(query).toString()}`, {
-      cache: 'no-store'
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/tutors?${new URLSearchParams(
+        query
+      ).toString()}`,
+      {
+        cache: "no-store",
+      }
+    );
+
     const data = await res.json();
-    return { success: data.success, data: data.data, message: data.message };
+
+    return {
+      success: data.success,
+      data: data.data ?? {
+        tutors: [],
+        meta: {
+          page: Number(query.page || 1),
+          limit: Number(query.limit || 10),
+          total: 0,
+        },
+      },
+      message: data.message,
+    };
   } catch (error) {
     console.error("Error fetching tutors:", error);
-    return { success: false, data: [], message: "Failed to fetch tutors" };
+
+    return {
+      success: false,
+      data: {
+        tutors: [],
+        meta: {
+          page: Number(query.page || 1),
+          limit: Number(query.limit || 10),
+          total: 0,
+        },
+      },
+      message: "Failed to fetch tutors",
+    };
   }
 };
 
