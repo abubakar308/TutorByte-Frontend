@@ -22,7 +22,9 @@ export default function FeaturedTutorsSection() {
 
         const tutorsRes = await getAllTutors();
 
-        const tutorsData = tutorsRes?.data?.tutors;
+        setTutors((tutorsRes.data as any).tutors || []);
+
+        const tutorsData = (tutorsRes?.data as any)?.tutors;
 
         if (tutorsRes?.success && Array.isArray(tutorsData)) {
           const approvedTutors = tutorsData.filter((t: Tutor) => {

@@ -19,6 +19,7 @@ export interface Tutor {
   averageRating: number;
   totalReviews: number;
   isApproved: boolean;
+  createdAt: string;
   user: {
     id: string;
     name: string;
@@ -29,6 +30,12 @@ export interface Tutor {
   languages: { language: Language }[];
   availabilities?: any[];
   reviews?: any[];
+  _count?: {
+    bookings: number;
+    reviews: number;
+    subjects: number;
+    languages: number;
+  };
 }
 
 export const getAllTutors = async (query: Record<string, any> = {}): Promise<{ success: boolean; data: Tutor[]; message?: string }> => {

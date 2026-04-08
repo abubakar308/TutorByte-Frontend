@@ -42,14 +42,14 @@ export async function getAuthHeader() {
     "Content-Type": "application/json",
   };
 
-  if (accessToken) {
-    headers.Authorization = `Bearer ${accessToken}`;
-    console.log(
-      `[Auth] Access token found and added to Authorization header (length: ${accessToken.length})`
-    );
-  } else {
-    console.warn("[Auth] No accessToken found in cookies.");
-  }
+  // if (accessToken) {
+  //   headers.Authorization = `Bearer ${accessToken}`;
+  //   console.log(
+  //     `[Auth] Access token found and added to Authorization header (length: ${accessToken.length})`
+  //   );
+  // } else {
+  //   console.warn("[Auth] No accessToken found in cookies.");
+  // }
 
   const cookieHeader = buildCookieHeader({
     accessToken,
