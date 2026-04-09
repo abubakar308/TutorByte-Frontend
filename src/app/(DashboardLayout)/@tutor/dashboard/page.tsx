@@ -2,9 +2,21 @@
 
 import { useState, useEffect } from "react";
 import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  RadialBarChart,
+  RadialBar,
+  PolarAngleAxis,
+} from "recharts";
+import {
   LayoutDashboard, Calendar, DollarSign, User,
   LogOut, Bell, Star, Clock, Menu, X, BookOpen, Activity, 
-  ChevronRight, TrendingUp
+  ChevronRight, TrendingUp, BarChart3, Sun, Moon
 } from "lucide-react";
 
 // Actions & Services
@@ -32,6 +44,19 @@ export default function TutorDashboard() {
   const [stats, setStats] = useState<any | null>(null); // Type update based on new JSON
   const [user, setUser] = useState<DecodedUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [theme, setTheme] = useState("light");
+
+  useEffect(() => {
+    if (document.documentElement.classList.contains("dark")) {
+      setTheme("dark");
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+    document.documentElement.classList.toggle("dark", newTheme === "dark");
+  };
 
   // API Call uncommented and active
   useEffect(() => {
@@ -81,10 +106,39 @@ export default function TutorDashboard() {
       value: stats?.activity?.thisMonthBookings || 0, 
       icon: Activity, color: "text-violet-600", bg: "bg-violet-500/10" 
     },
+    
+  ];
+
+    const totalEarnings = Number(stats?.overview?.totalEarnings || 0);
+  const totalBookings = Number(stats?.overview?.totalBookings || 0);
+  const avgRating = Number(stats?.overview?.averageRating || 0);
+  const thisMonthBookings = Number(stats?.activity?.thisMonthBookings || 0);
+
+  const earningsChartData = [
+    {
+      name: "Earnings",
+      value: totalEarnings,
+    },
+    {
+      name: "Sessions",
+      value: totalBookings,
+    },
+    {
+      name: "This Month",
+      value: thisMonthBookings,
+    },
+  ];
+
+  const performanceData = [
+    {
+      name: "Rating",
+      value: Math.min(avgRating * 20, 100),
+      fill: "hsl(var(--primary))",
+    },
   ];
 
   return (
-    <div className="flex h-screen bg-[#F8FAFC] dark:bg-background text-foreground overflow-hidden font-sans">
+    <div className="flex h-screen bg-background text-foreground overflow-hidden font-sans">
       
       {/* ── SIDEBAR ─────────────────────────────── */}
       <aside className={`${sideOpen ? "w-64" : "w-20"} hidden md:flex flex-col border-r border-border bg-card transition-all duration-500 shrink-0 z-50`}>
@@ -142,6 +196,12 @@ export default function TutorDashboard() {
           </div>
 
           <div className="flex items-center gap-4">
+            <button
+              onClick={toggleTheme}
+              className="relative h-11 w-11 flex items-center justify-center rounded-2xl border border-border bg-background text-muted-foreground hover:text-foreground transition-all"
+            >
+              {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+            </button>
             <button className="relative h-11 w-11 flex items-center justify-center rounded-2xl border border-border bg-background text-muted-foreground hover:text-primary transition-all">
               <Bell className="h-5 w-5" />
               <span className="absolute right-3 top-3 h-2 w-2 rounded-full bg-rose-500 ring-4 ring-card animate-pulse" />
@@ -188,24 +248,49 @@ export default function TutorDashboard() {
 
           {/* Render Sections with Fade-in Animation */}
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-            {active === "dashboard" && (
-              <div className="grid gap-8 lg:grid-cols-[1fr_400px]">
-                <div className="space-y-8">
-                  <TutorBookingsSection />
-                </div>
-                <div className="space-y-8">
-                  <ReviewsSection />
-                  <div className="rounded-[2.5rem] bg-primary p-8 text-primary-foreground relative group overflow-hidden">
-                     <TrendingUp className="absolute -right-4 -bottom-4 h-32 w-32 opacity-10 group-hover:scale-125 transition-transform duration-700" />
-                     <h4 className="text-xl font-black italic uppercase">Pro Tip</h4>
-                     <p className="text-sm opacity-90 mt-2 font-medium">Keep your availability updated to rank higher in student searches!</p>
-                     <button onClick={() => setActive("availability")} className="mt-6 rounded-xl bg-white px-5 py-2.5 text-xs font-black text-primary transition-all hover:scale-105 active:scale-95 shadow-lg shadow-white/10">
-                        Manage Slots
-                     </button>
-                  </div>
-                </div>
-              </div>
-            )}
+          {active === "dashboard" && (
+  <div className="space-y-8">
+    <div className="grid gap-8 xl:grid-cols-[1.4fr_0.9fr]">
+      <TutorAnalyticsChart
+        loading={loading}
+        data={earningsChartData}
+        totalEarnings={totalEarnings}
+        totalBookings={totalBookings}
+      />
+
+      <TutorPerformanceChart
+        loading={loading}
+        rating={avgRating}
+        thisMonthBookings={thisMonthBookings}
+        data={performanceData}
+      />
+    </div>
+
+    <div className="grid gap-8 lg:grid-cols-[1fr_400px]">
+      <div className="space-y-8">
+        <TutorBookingsSection />
+      </div>
+
+      <div className="space-y-8">
+        <ReviewsSection />
+
+        <div className="relative overflow-hidden rounded-[2.5rem] bg-primary p-8 text-primary-foreground group">
+          <TrendingUp className="absolute -right-4 -bottom-4 h-32 w-32 opacity-10 transition-transform duration-700 group-hover:scale-125" />
+          <h4 className="text-xl font-black italic uppercase">Pro Tip</h4>
+          <p className="mt-2 text-sm font-medium opacity-90">
+            Keep your availability updated to rank higher in student searches!
+          </p>
+          <button
+            onClick={() => setActive("availability")}
+            className="mt-6 rounded-xl bg-white px-5 py-2.5 text-xs font-black text-primary shadow-lg shadow-white/10 transition-all hover:scale-105 active:scale-95"
+          >
+            Manage Slots
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
             {active === "bookings" && <div className="max-w-5xl mx-auto"><TutorBookingsSection /></div>}
             {active === "availability" && <div className="max-w-5xl mx-auto"><AvailabilitySection /></div>}
@@ -222,6 +307,197 @@ export default function TutorDashboard() {
             )}
           </div>
         </main>
+      </div>
+    </div>
+  );
+}
+
+
+
+function TutorAnalyticsChart({
+  loading,
+  data,
+  totalEarnings,
+  totalBookings,
+}: {
+  loading: boolean;
+  data: { name: string; value: number }[];
+  totalEarnings: number;
+  totalBookings: number;
+}) {
+  return (
+    <div className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <div className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <BarChart3 className="h-5 w-5" />
+          </div>
+          <h3 className="text-xl font-black tracking-tight">Analytics Overview</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Your teaching earnings and sessions summary
+          </p>
+        </div>
+
+        <div className="rounded-2xl bg-muted/60 px-4 py-3 text-right">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+            Total Revenue
+          </p>
+          <p className="text-lg font-black">${totalEarnings.toLocaleString()}</p>
+        </div>
+      </div>
+
+      <div className="h-[320px] w-full">
+        {loading ? (
+          <div className="flex h-full items-center justify-center text-muted-foreground">
+            Loading analytics...
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <CartesianGrid
+                strokeDasharray="3 3"
+                vertical={false}
+                stroke="currentColor"
+                className="text-border"
+                opacity={0.15}
+              />
+              <XAxis
+                dataKey="name"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: "currentColor", opacity: 0.65, fontSize: 12 }}
+              />
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: "currentColor", opacity: 0.65, fontSize: 12 }}
+              />
+              <Tooltip
+                cursor={false}
+                contentStyle={{
+                  borderRadius: "16px",
+                  border: "1px solid var(--border)",
+                  backgroundColor: "var(--card)",
+                  color: "var(--foreground)",
+                  boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+                }}
+              />
+              <Bar
+                dataKey="value"
+                radius={[14, 14, 6, 6]}
+                fill="hsl(var(--primary))"
+                maxBarSize={56}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        )}
+      </div>
+
+      <div className="mt-4 grid grid-cols-2 gap-4">
+        <div className="rounded-2xl bg-muted/40 p-4">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+            Total Sessions
+          </p>
+          <p className="mt-1 text-2xl font-black">{totalBookings}</p>
+        </div>
+        <div className="rounded-2xl bg-muted/40 p-4">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+            Avg Revenue / Session
+          </p>
+          <p className="mt-1 text-2xl font-black">
+            ${totalBookings > 0 ? (totalEarnings / totalBookings).toFixed(1) : "0.0"}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TutorPerformanceChart({
+  loading,
+  rating,
+  thisMonthBookings,
+  data,
+}: {
+  loading: boolean;
+  rating: number;
+  thisMonthBookings: number;
+  data: { name: string; value: number; fill: string }[];
+}) {
+  return (
+    <div className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <div className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-500">
+            <Star className="h-5 w-5" />
+          </div>
+          <h3 className="text-xl font-black tracking-tight">Performance Score</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Based on your tutor rating and activity
+          </p>
+        </div>
+      </div>
+
+      <div className="flex flex-col items-center justify-center">
+        <div className="h-[240px] w-full">
+          {loading ? (
+            <div className="flex h-full items-center justify-center text-muted-foreground">
+              Loading performance...
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <RadialBarChart
+                innerRadius="70%"
+                outerRadius="100%"
+                data={data}
+                startAngle={180}
+                endAngle={0}
+              >
+                <PolarAngleAxis
+                  type="number"
+                  domain={[0, 100]}
+                  angleAxisId={0}
+                  tick={false}
+                />
+                <RadialBar
+                  background
+                  dataKey="value"
+                  cornerRadius={18}
+                />
+              </RadialBarChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+
+        <div className="-mt-28 text-center">
+          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+            Average Rating
+          </p>
+          <h4 className="mt-2 text-4xl font-black tracking-tighter">
+            {rating ? rating.toFixed(1) : "0.0"}
+          </h4>
+          <p className="mt-1 text-sm text-muted-foreground">out of 5.0</p>
+        </div>
+      </div>
+
+      <div className="mt-6 grid grid-cols-2 gap-4">
+        <div className="rounded-2xl bg-muted/40 p-4">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+            This Month
+          </p>
+          <p className="mt-1 text-2xl font-black">{thisMonthBookings}</p>
+          <p className="mt-1 text-xs text-muted-foreground">Bookings completed</p>
+        </div>
+
+        <div className="rounded-2xl bg-muted/40 p-4">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+            Status
+          </p>
+          <p className="mt-1 text-2xl font-black">
+            {rating >= 4.5 ? "Excellent" : rating >= 3.5 ? "Good" : "Growing"}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">Current tutor performance</p>
+        </div>
       </div>
     </div>
   );

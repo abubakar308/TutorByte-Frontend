@@ -4,7 +4,6 @@ import { apiRequest } from "../api/base";
 import { ApiResponse } from "../api/types";
 import { requireRole } from "@/services/auth";
 
-
 // ============ INTERFACES ============
 
 export interface AdminDashboardStats {
@@ -12,6 +11,7 @@ export interface AdminDashboardStats {
   totalUsers: number;
   totalTutors: number;
   totalBookings: number;
+  totalRevenue: number | string;
   averageRating: {
     _avg: {
       averageRating: number | null;
@@ -68,13 +68,57 @@ export interface AdminBooking {
   id: string;
   studentId: string;
   tutorId: string;
-  studentName: string;
-  tutorName: string;
-  subject: string;
-  scheduledDate: string;
-  duration: number;
+  subjectId: string;
+  bookingDate: string;
+  startTime: string;
+  endTime: string;
   status: "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
+  totalPrice: string;
+  meetingLink?: string | null;
+  reason?: string | null;
   createdAt: string;
+  student?: {
+    id: string;
+    name: string;
+    email: string;
+    image?: string | null;
+  };
+  tutor?: {
+    id: string;
+    userId: string;
+    bio?: string;
+    experienceYears?: number;
+    hourlyRate?: string;
+    averageRating?: number;
+    totalReviews?: number;
+    isApproved?: boolean;
+    createdAt?: string;
+    user?: {
+      id: string;
+      name: string;
+      email: string;
+      image?: string | null;
+    };
+  };
+  payment?: {
+    id: string;
+    bookingId: string;
+    amount: string;
+    status: string;
+    transactionId: string;
+    paymentMethod: string;
+    createdAt: string;
+  } | null;
+}
+
+export interface AdminBookingsPayload {
+  bookings: AdminBooking[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 }
 
 export interface AdminLogsResponse {
@@ -330,16 +374,20 @@ export async function getAdminBookings(
   status?: string,
   tutorId?: string,
   studentId?: string
-): Promise<ApiResponse<{ data: AdminBooking[]; total: number }>> {
+): Promise<ApiResponse<AdminBookingsPayload>> {
   await requireRole("ADMIN");
+
+  
   const params = new URLSearchParams();
   params.append("page", String(page));
   params.append("limit", String(limit));
   if (status) params.append("status", status);
   if (tutorId) params.append("tutorId", tutorId);
   if (studentId) params.append("studentId", studentId);
+
   const query = params.toString() ? `?${params.toString()}` : "";
-  return apiRequest(`/admin/bookings${query}`, {
+
+  return apiRequest(`/bookings${query}`, {
     method: "GET",
   });
 }

@@ -1,3 +1,5 @@
+import { apiRequest } from "../api/base";
+
 export interface SuggestionSubject {
   id: string;
   name: string;
@@ -84,4 +86,17 @@ export const getRecommendedTutors = async (): Promise<{
       message: "Failed to fetch recommendations",
     };
   }
+};
+
+
+export interface IChatMessage {
+  role: "user" | "assistant" | "system";
+  content: string;
+}
+
+export const getAIChatReply = async (messages: IChatMessage[]) => {
+  return apiRequest<any>("/ai-chat", {
+    method: "POST",
+    body: JSON.stringify({ messages }),
+  });
 };

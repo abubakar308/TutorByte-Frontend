@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, Quote, Star } from "lucide-react";
 import Link from "next/link";
-import { mapReviewsToTestimonials } from "@/lib/testimonial";
-import { getAllReviews, TestimonialItem } from "@/services/reviews";
+import { mapReviewsToTestimonials, TestimonialItem } from "@/lib/testimonial";
+import { getAllReviews } from "@/services/reviews";
 
 
 export default function TestimonialsSection() {

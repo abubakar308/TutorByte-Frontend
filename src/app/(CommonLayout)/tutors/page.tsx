@@ -39,6 +39,8 @@ export default function TutorsListingPage() {
   const [languages, setLanguages] = useState<Language[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
   const [searchInput, setSearchInput] = useState(initialSearch);
   const [appliedSearch, setAppliedSearch] = useState(initialSearch);
   const [selectedSubjectName, setSelectedSubjectName] = useState<string | null>(null);
@@ -57,6 +59,7 @@ export default function TutorsListingPage() {
   });
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const isSelectingSuggestion = useRef(false);
 
   useEffect(() => {
     setSearchInput(initialSearch);
@@ -102,53 +105,65 @@ export default function TutorsListingPage() {
     setPage(1);
   }, [searchInput, selectedSubjectName, selectedLanguageName, maxPrice]);
 
-  useEffect(() => {
-    if (!searchInput.trim()) {
-      setSuggestions({
-        subjects: [],
-        languages: [],
-        tutors: [],
-      });
-      setShowSuggestions(false);
-      return;
-    }
+useEffect(() => {
+  if (!searchInput.trim()) {
+    setSuggestions({
+      subjects: [],
+      languages: [],
+      tutors: [],
+    });
+    setShowSuggestions(false);
+    return;
+  }
 
-    const timer = setTimeout(async () => {
-      try {
-        setSuggestionsLoading(true);
+  if (isSelectingSuggestion.current) {
+    isSelectingSuggestion.current = false;
+    return;
+  }
 
-        const res = await getSearchSuggestions(searchInput.trim());
+  const timer = setTimeout(async () => {
+    try {
+      setSuggestionsLoading(true);
 
-        if (res.success && res.data) {
-          setSuggestions({
-            subjects: res.data.subjects || [],
-            languages: res.data.languages || [],
-            tutors: res.data.tutors || [],
-          });
-          setShowSuggestions(true);
-        } else {
-          setSuggestions({
-            subjects: [],
-            languages: [],
-            tutors: [],
-          });
-          setShowSuggestions(false);
-        }
-      } catch (error) {
-        console.error("Failed to fetch search suggestions:", error);
+      const res = await getSearchSuggestions(searchInput.trim());
+
+      if (res.success && res.data) {
+        const nextSuggestions = {
+          subjects: res.data.subjects || [],
+          languages: res.data.languages || [],
+          tutors: res.data.tutors || [],
+        };
+
+        const nextTotal =
+          nextSuggestions.subjects.length +
+          nextSuggestions.languages.length +
+          nextSuggestions.tutors.length;
+
+        setSuggestions(nextSuggestions);
+        setShowSuggestions(nextTotal > 0);
+      } else {
         setSuggestions({
           subjects: [],
           languages: [],
           tutors: [],
         });
         setShowSuggestions(false);
-      } finally {
-        setSuggestionsLoading(false);
       }
-    }, 300);
+    } catch (error) {
+      console.error("Failed to fetch search suggestions:", error);
+      setSuggestions({
+        subjects: [],
+        languages: [],
+        tutors: [],
+      });
+      setShowSuggestions(false);
+    } finally {
+      setSuggestionsLoading(false);
+    }
+  }, 300);
 
-    return () => clearTimeout(timer);
-  }, [searchInput]);
+  return () => clearTimeout(timer);
+}, [searchInput, isSelectingSuggestion]);
 
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
@@ -228,9 +243,11 @@ export default function TutorsListingPage() {
   };
 
   const handleSuggestionClick = (value: string) => {
+    isSelectingSuggestion.current = true;
     setSearchInput(value);
     setAppliedSearch(value);
     setShowSuggestions(false);
+     inputRef.current?.blur();
     setPage(1);
   };
 
@@ -253,7 +270,7 @@ export default function TutorsListingPage() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <section className="relative border-b border-border/50 bg-card/10 py-16 backdrop-blur-sm">
+    <section className="relative z-40 overflow-visible border-b border-border/50 bg-card/10 py-16 backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
@@ -271,36 +288,42 @@ export default function TutorsListingPage() {
                 book the right tutor for your learning journey.
               </p>
             </div>
-
-            <div ref={searchContainerRef} className="relative z-30 w-full lg:max-w-md">
+<div
+  ref={searchContainerRef}
+  className="relative z-50 w-full overflow-visible lg:max-w-md"
+>
               <Search className="absolute left-4 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
               <input
+               ref={inputRef}
                 type="text"
                 placeholder="Search by name, bio, subject, or language..."
                 className="h-14 w-full rounded-2xl border border-border bg-card px-12 text-foreground shadow-sm outline-none transition focus:border-primary/50 focus:ring-4 focus:ring-primary/5"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                onFocus={() => {
-                  if (totalSuggestions > 0) setShowSuggestions(true);
-                }}
+              onFocus={() => {
+  if (searchInput.trim() && totalSuggestions > 0) {
+    setShowSuggestions(true);
+  }
+}}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     setAppliedSearch(searchInput);
                     setShowSuggestions(false);
+                     inputRef.current?.blur();
                     setPage(1);
                   }
                 }}
               />
 
-              {showSuggestions && (
-                <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-100 max-h-80 overflow-y-auto rounded-2xl border border-border bg-card shadow-2xl">
+             {showSuggestions && (
+  <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-[999] max-h-80 overflow-y-auto rounded-2xl border border-border bg-card shadow-2xl">
                   {suggestionsLoading ? (
                     <div className="flex items-center gap-2 p-4 text-sm text-muted-foreground">
                       <Loader2 className="h-4 w-4 animate-spin" />
                       Loading suggestions...
                     </div>
                   ) : totalSuggestions > 0 ? (
-                    <div className="max-h-80 z-100 overflow-y-auto p-2">
+                    <div className="max-h-80 overflow-y-auto p-2">
                       {suggestions.subjects.length > 0 && (
                         <div className="mb-2">
                           <p className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">

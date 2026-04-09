@@ -280,7 +280,7 @@ export const createReview = async (
   comment: string
 ): Promise<ApiResponse<StudentReview>> => {
   await requireRole("STUDENT");
-  return apiRequest<StudentReview>("/bookings/reviews", {
+  return apiRequest<StudentReview>("/reviews", {
     method: "POST",
     body: JSON.stringify({
       bookingId,
@@ -296,7 +296,7 @@ export const updateReview = async (
   data: Partial<StudentReview>
 ): Promise<ApiResponse> => {
   await requireRole("STUDENT");
-  return apiRequest(`/students/reviews/${reviewId}`, {
+  return apiRequest(`/reviews/${reviewId}`, {
     method: "PATCH",
     body: JSON.stringify(data),
   });
@@ -304,7 +304,7 @@ export const updateReview = async (
 
 export const deleteReview = async (reviewId: string): Promise<ApiResponse> => {
   await requireRole("STUDENT");
-  return apiRequest(`/students/reviews/${reviewId}`, {
+  return apiRequest(`/reviews/${reviewId}`, {
     method: "DELETE",
   });
 };

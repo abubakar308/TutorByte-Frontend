@@ -11,7 +11,7 @@ import {
   GoogleBtn,
 } from "@/components/ui/auth/AuthLayout";
 import { loginUser } from "@/services/auth";
-import { toast } from "sonner"; // Sonner ইম্পোর্ট করুন
+import { toast } from "sonner";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -23,8 +23,7 @@ export default function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
-    // ১. বেসিক ভ্যালিডেশন
+
     if (!email || !password) {
       toast.error("Please fill in all fields.");
       return;
@@ -37,29 +36,73 @@ export default function LoginForm() {
       const result = await loginUser({ email, password });
 
       if (result.success) {
-        // ২. সাকসেস টোস্ট
         toast.success(result.message || "Welcome back! Login successful.");
-        
-        // ৩. রিডাইরেক্ট এবং রিফ্রেশ
         router.push("/");
         router.refresh();
       } else {
         setError(result.message || "Login failed. Please try again.");
       }
     } catch (err: any) {
-      // ৪. এরর হ্যান্ডলিং
       setError(err.message || "Login failed. Please try again.");
-    
     } finally {
       setLoading(false);
     }
   };
 
+  // 🔥 Demo credential handler
+  const fillDemo = (email: string, password: string, role: string) => {
+    setEmail(email);
+    setPassword(password);
+  };
+
   return (
     <>
       <div className="mb-8">
-        <h1 className="text-3xl font-black tracking-tight text-foreground">Welcome back.</h1>
-        <p className="mt-2 text-muted-foreground text-sm">Sign in to continue your learning journey.</p>
+        <h1 className="text-3xl font-black tracking-tight text-foreground">
+          Welcome back.
+        </h1>
+        <p className="mt-2 text-muted-foreground text-sm">
+          Sign in to continue your learning journey.
+        </p>
+      </div>
+
+      {/* 🔥 Demo Credentials */}
+      <div className="mb-6 space-y-3">
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+          Demo Accounts
+        </p>
+
+        <div className="grid grid-cols-1 gap-2">
+          <button
+            type="button"
+            onClick={() =>
+              fillDemo("admin@tutorbyte.com", "adminpassword", "Admin")
+            }
+            className="w-full rounded-xl border border-border px-3 py-2 text-sm text-left hover:bg-muted transition"
+          >
+            🔐 Admin Login
+          </button>
+
+          <button
+            type="button"
+            onClick={() =>
+              fillDemo("anisul@gmail.com", "Anisul12", "Tutor")
+            }
+            className="w-full rounded-xl border border-border px-3 py-2 text-sm text-left hover:bg-muted transition"
+          >
+            🎓 Tutor Login
+          </button>
+
+          <button
+            type="button"
+            onClick={() =>
+              fillDemo("abubakar1@gmail.com", "Abubakar1", "Student")
+            }
+            className="w-full rounded-xl border border-border px-3 py-2 text-sm text-left hover:bg-muted transition"
+          >
+            👨‍🎓 Student Login
+          </button>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit}>
@@ -98,7 +141,10 @@ export default function LoginForm() {
 
       <p className="mt-5 text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{" "}
-        <Link href="/register" className="font-semibold text-primary hover:underline">
+        <Link
+          href="/register"
+          className="font-semibold text-primary hover:underline"
+        >
           Create one free
         </Link>
       </p>
