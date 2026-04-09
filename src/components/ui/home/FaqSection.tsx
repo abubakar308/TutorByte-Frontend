@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronDown, CircleHelp, Loader2 } from "lucide-react";
+import { ChevronDown, CircleHelp } from "lucide-react";
 import Link from "next/link";
+import { FaqItem, mockFaqs } from "@/mockData/faq";
 
 export default function FaqSection() {
   const [faqs, setFaqs] = useState<FaqItem[]>([]);
@@ -10,26 +11,17 @@ export default function FaqSection() {
   const [openId, setOpenId] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchFaqs = async () => {
-      try {
-        setLoading(true);
-        const res = await getFaqs();
-        if (res.success) {
-          const items = Array.isArray(res.data) ? res.data : [];
-          setFaqs(items);
-          if (items.length > 0) setOpenId(items[0].id);
-        } else {
-          setFaqs([]);
-        }
-      } catch (error) {
-        console.error("Failed to fetch FAQs", error);
-        setFaqs([]);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchFaqs();
+    const timer = setTimeout(() => {
+      const previewFaqs = mockFaqs.slice(0, 4);
+      setFaqs(previewFaqs);
+      if (previewFaqs.length > 0) {
+        setOpenId(previewFaqs[0].id);
+      }
+      setLoading(false);
+    }, 200);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -46,7 +38,8 @@ export default function FaqSection() {
         </h3>
 
         <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
-          Explore common questions about tutor discovery, booking, support, and the TutorByte learning experience.
+          Explore common questions about tutor discovery, booking, support, and
+          the TutorByte learning experience.
         </p>
       </div>
 
@@ -114,7 +107,9 @@ export default function FaqSection() {
       ) : (
         <div className="rounded-2xl border border-dashed border-border p-12 text-center">
           <CircleHelp className="mx-auto mb-4 h-10 w-10 text-muted-foreground/50" />
-          <p className="font-semibold text-foreground">No FAQs available right now.</p>
+          <p className="font-semibold text-foreground">
+            No FAQs available right now.
+          </p>
           <p className="mt-2 text-sm text-muted-foreground">
             Please check again later.
           </p>

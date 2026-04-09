@@ -6,6 +6,8 @@ import HowItWorksSection from "@/components/ui/home/Howitwork";
 import TrustSection from "@/components/ui/home/Trusted";
 import BlogPreviewSection from "@/components/ui/home/BlogPreviewSection";
 import WhyChooseTutorByteSection from "@/components/ui/home/WHyChooseTutorbyte";
+import FaqSection from "@/components/ui/home/FaqSection";
+import TestimonialsSection from "@/components/ui/home/TestimonialsSection";
 
 export default function HomePage() {
   return (
@@ -30,6 +32,10 @@ export default function HomePage() {
           <HowItWorksSection />
 
           <WhyChooseTutorByteSection />
+
+          <TestimonialsSection />
+
+          <FaqSection />
 
           <BlogPreviewSection />
 
