@@ -12,6 +12,11 @@ export interface AdminDashboardStats {
   totalUsers: number;
   totalTutors: number;
   totalBookings: number;
+  averageRating: {
+    _avg: {
+      averageRating: number | null;
+    };
+  };
   recentStats?: {
     revenueChange: number;
     usersChange: number;
@@ -30,12 +35,12 @@ export interface AdminUser {
   createdAt: string;
   updatedAt: string;
   image?: string;
- meta: {
-            page: string,
-            limit: number,
-            total: number,
-            totalPage: number
-        }
+  meta: {
+    page: string,
+    limit: number,
+    total: number,
+    totalPage: number
+  }
 }
 
 export interface AdminPayment {
@@ -92,7 +97,7 @@ export interface AdminUsersResponse {
 export interface Subject {
   id: string;
   name: string;
- category:  "ACADEMIC" | "SKILLS" | "LANGUAGE"
+  category: "ACADEMIC" | "SKILLS" | "LANGUAGE"
 }
 
 export interface Language {
@@ -103,7 +108,6 @@ export interface Language {
 // ============ DASHBOARD & STATS ============
 
 export const getAdminDashboardStats = async (): Promise<ApiResponse<AdminDashboardStats>> => {
-  await requireRole("ADMIN");
   return apiRequest<AdminDashboardStats>("/admin/dashboard-stats", {
     method: "GET",
   });
@@ -443,11 +447,11 @@ export const bulkRejectTutors = async (tutorIds: string[]): Promise<ApiResponse>
 
 // ============ SUBJECT MANAGEMENT ============
 
-export const createSubject = async (data: { 
-  name: string; 
-  category: "ACADEMIC" | "SKILLS" | "LANGUAGE"; 
+export const createSubject = async (data: {
+  name: string;
+  category: "ACADEMIC" | "SKILLS" | "LANGUAGE";
 }): Promise<ApiResponse<Subject>> => {
-  
+
   await requireRole("ADMIN");
 
   return apiRequest<Subject>(`/subject`, {

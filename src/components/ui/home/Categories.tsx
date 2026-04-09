@@ -6,6 +6,7 @@ import {
   ArrowRight, Languages, Loader2, Globe2 
 } from "lucide-react";
 import { getLanguages, Language } from "@/services/admin";
+import CategoryCardSkeleton from "../shared/CategorySkeleton";
 
 export default function LanguageCategoriesSection() {
   const [languages, setLanguages] = useState<Language[]>([]);
@@ -48,10 +49,11 @@ export default function LanguageCategoriesSection() {
       </div>
 
       {loading ? (
-        <div className="flex h-64 flex-col items-center justify-center gap-4">
-          <Loader2 className="h-10 w-10 animate-spin text-primary/30" />
-          <p className="text-sm font-bold text-muted-foreground animate-pulse">Fetching languages...</p>
-        </div>
+       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+  {Array.from({ length: 6 }).map((_, idx) => (
+    <CategoryCardSkeleton key={idx} />
+  ))}
+</div>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {languages.length > 0 ? (

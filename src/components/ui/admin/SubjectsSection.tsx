@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Search, Plus, Pencil, Trash2, GraduationCap, Loader2 } from "lucide-react";
 import AddSubjectModal from "@/components/modals/admin/AddSubjectModal";
 import { getSubjects, Subject } from "@/services/admin";
+import CategoryCardSkeleton from "../shared/CategorySkeleton";
 
 export default function SubjectsSection() {
   const [subjects, setSubjects] = useState<Subject[]>([]);
@@ -65,7 +66,11 @@ setSubjects(Array.isArray(arr) ? arr : []);
 
       {/* Content */}
       {loading ? (
-        <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+  {Array.from({ length: 12 }).map((_, idx) => (
+    <CategoryCardSkeleton key={idx} />
+  ))}
+</div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredSubjects.map((subject) => (

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AlertCircle, ArrowRight, Star, Users2 } from "lucide-react";
 import TutorCard from "@/components/ui/tutors/TutorCard";
 import { getAllTutors, Tutor } from "@/services/tutors";
+import { TutorCardSkeleton } from "../tutors/SkeletonCard";
 
 type TabKey = "top" | "popular" | "new";
 
@@ -20,11 +21,8 @@ export default function FeaturedTutorsSection() {
         setLoading(true);
         setError("");
 
-        const tutorsRes = await getAllTutors();
-
-        setTutors((tutorsRes.data as any).tutors || []);
-
-        const tutorsData = (tutorsRes?.data as any)?.tutors;
+        const tutorsRes = await getAllTutors({ page: 1, limit: 20 });
+        const tutorsData = tutorsRes?.data?.tutors || [];
 
         if (tutorsRes?.success && Array.isArray(tutorsData)) {
           const approvedTutors = tutorsData.filter((t: Tutor) => {
@@ -42,10 +40,12 @@ export default function FeaturedTutorsSection() {
           setTutors(approvedTutors);
         } else {
           setError(tutorsRes?.message || "Unable to load tutors right now.");
+          setTutors([]);
         }
       } catch (err) {
         console.error("Error loading tutors:", err);
         setError("Something went wrong while loading featured tutors.");
+        setTutors([]);
       } finally {
         setLoading(false);
       }
@@ -142,12 +142,12 @@ export default function FeaturedTutorsSection() {
             </div>
 
             <h2 className="mt-5 text-3xl font-black tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-              Learn from our <span className="text-primary">top-rated tutors</span>.
+              Learn from our <span className="text-primary">featured tutors</span>.
             </h2>
 
             <p className="mt-3 text-base text-muted-foreground">
-              Carefully reviewed educator profiles with strong ratings and proven
-              results.
+              Carefully reviewed educator profiles with strong ratings, trusted
+              teaching experience, and learner-focused support.
             </p>
           </div>
 
@@ -181,12 +181,9 @@ export default function FeaturedTutorsSection() {
         </div>
 
         {loading ? (
-          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             {Array.from({ length: 4 }).map((_, idx) => (
-              <div
-                key={idx}
-                className="h-[390px] animate-pulse rounded-2xl border border-border/60 bg-card"
-              />
+              <TutorCardSkeleton key={idx} />
             ))}
           </div>
         ) : error ? (
@@ -207,7 +204,7 @@ export default function FeaturedTutorsSection() {
             </Link>
           </div>
         ) : visibleTutors.length > 0 ? (
-          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             {visibleTutors.map((tutor) => (
               <div key={tutor.id} className="h-full">
                 <TutorCard tutor={tutor} />

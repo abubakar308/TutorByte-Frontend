@@ -4,6 +4,8 @@ import CategoriesSection from "@/components/ui/home/Categories";
 import FeaturedTutorsSection from "@/components/ui/home/Featured";
 import HowItWorksSection from "@/components/ui/home/Howitwork";
 import TrustSection from "@/components/ui/home/Trusted";
+import BlogPreviewSection from "@/components/ui/home/BlogPreviewSection";
+import WhyChooseTutorByteSection from "@/components/ui/home/WHyChooseTutorbyte";
 
 export default function HomePage() {
   return (
@@ -26,6 +28,11 @@ export default function HomePage() {
 
         <div className="bg-background relative z-20 py-10">
           <HowItWorksSection />
+
+          <WhyChooseTutorByteSection />
+
+          <BlogPreviewSection />
+
         </div>
 
         <TrustSection />

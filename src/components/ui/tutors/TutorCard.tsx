@@ -30,7 +30,7 @@ export default function TutorCard({ tutor }: TutorCardProps) {
     languages?.map((l) => l.language?.name).filter(Boolean).join(", ") || "English";
 
   return (
-    <article className="group flex h-full min-h-[420px] w-full flex-col overflow-hidden rounded-[2rem] border border-border/70 bg-card shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+    <article className="group flex -z-100 h-full min-h-[420px] w-full flex-col overflow-hidden rounded-[2rem] border border-border/70 bg-card shadow-sm transition hover:-translate-y-1 hover:shadow-md">
       {/* Image */}
       <div className="relative h-52 w-full overflow-hidden">
         <img
