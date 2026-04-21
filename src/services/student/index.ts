@@ -97,8 +97,9 @@ export const getStudentProfile = async (
 export const updateStudentProfile = async (
   data: Partial<StudentProfile>
 ): Promise<ApiResponse<StudentProfile>> => {
-  await requireRole("STUDENT");
-  return apiRequest<StudentProfile>("/students/me", {
+  // Allow STUDENT and ADMIN to use this service
+  const user = await requireRole("STUDENT").catch(async () => await requireRole("ADMIN"));
+  return apiRequest<StudentProfile>("/users/update-profile", {
     method: "PATCH",
     body: JSON.stringify(data),
   });
@@ -112,6 +113,18 @@ export const updateStudentProfileById = async (
   return apiRequest<StudentProfile>(`/students/${studentId}`, {
     method: "PATCH",
     body: JSON.stringify(data),
+  });
+};
+
+export const uploadUserAvatar = async (
+  file: File
+): Promise<ApiResponse<{ avatarUrl: string }>> => {
+  const formData = new FormData();
+  formData.append("avatar", file);
+
+  return apiRequest<{ avatarUrl: string }>("/users/upload-avatar", {
+    method: "POST",
+    body: formData,
   });
 };
 

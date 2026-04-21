@@ -10,6 +10,7 @@ import {
   GraduationCap,
   LayoutDashboard,
   LifeBuoy,
+  Loader2,
   LogOut,
   Menu,
   Moon,
@@ -21,6 +22,7 @@ import {
   X,
 } from "lucide-react";
 import { logOut } from "@/services/auth";
+import { getSearchSuggestions, SearchSuggestionsResponse } from "@/services/ai";
 
 type UserRole = "STUDENT" | "TUTOR" | "ADMIN";
 
@@ -134,6 +136,10 @@ export default function Navbar({ user }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [suggestions, setSuggestions] = useState<SearchSuggestionsResponse | null>(
+    null
+  );
+  const [isSearching, setIsSearching] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -166,6 +172,29 @@ export default function Navbar({ user }: NavbarProps) {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSuggestions(null);
+      return;
+    }
+
+    const delayDebounceFn = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const result = await getSearchSuggestions(searchQuery);
+        if (result.success) {
+          setSuggestions(result.data);
+        }
+      } catch (error) {
+        console.error("Search suggestions error:", error);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 400);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
 
   useEffect(() => {
     const handleOutside = (e: MouseEvent) => {
@@ -644,48 +673,108 @@ export default function Navbar({ user }: NavbarProps) {
               </button>
             </div>
 
-            <div className="space-y-2 px-4 py-3">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Quick Links
-              </p>
+            <div className="max-h-[60vh] overflow-y-auto p-4 space-y-6">
+              {isSearching ? (
+                <div className="flex items-center justify-center py-10">
+                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                </div>
+              ) : suggestions ? (
+                <>
+                  {suggestions.subjects.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Subjects</p>
+                      <div className="grid gap-2">
+                        {suggestions.subjects.map((sub) => (
+                          <Link
+                            key={sub.id}
+                            href={`/tutors?subject=${sub.id}`}
+                            onClick={handleNavClick}
+                            className="flex items-center gap-3 rounded-xl border border-border bg-background p-3 transition hover:border-primary/40 hover:bg-primary/5 group"
+                          >
+                            <BookOpen className="h-4 w-4 text-primary" />
+                            <span className="text-sm font-medium">{sub.name}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
-              <div className="grid gap-2 sm:grid-cols-2">
-                <Link
-                  href="/tutors?subject=web-development"
-                  onClick={handleNavClick}
-                  className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground transition hover:border-primary/30 hover:text-primary"
-                >
-                  <BookOpen className="h-4 w-4 text-muted-foreground" />
-                  Web Development Tutors
-                </Link>
+                  {suggestions.tutors.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Expert Tutors</p>
+                      <div className="grid gap-2">
+                        {suggestions.tutors.map((tutor) => (
+                          <Link
+                            key={tutor.id}
+                            href={`/tutors/${tutor.id}`}
+                            onClick={handleNavClick}
+                            className="flex items-center gap-3 rounded-xl border border-border bg-background p-3 transition hover:border-primary/40 hover:bg-primary/5"
+                          >
+                            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
+                              {tutor.user.name?.[0]}
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-sm font-bold">{tutor.user.name}</p>
+                              <p className="text-[10px] text-muted-foreground line-clamp-1">{tutor.bio}</p>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
-                <Link
-                  href="/tutors?subject=english"
-                  onClick={handleNavClick}
-                  className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground transition hover:border-primary/30 hover:text-primary"
-                >
-                  <BookOpen className="h-4 w-4 text-muted-foreground" />
-                  English Tutors
-                </Link>
+                  {suggestions.subjects.length === 0 && suggestions.tutors.length === 0 && (
+                    <div className="py-10 text-center">
+                      <Search className="mx-auto h-8 w-8 text-muted-foreground opacity-20" />
+                      <p className="mt-2 text-sm text-muted-foreground">No matches found for "{searchQuery}"</p>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                    Quick Links
+                  </p>
 
-                <Link
-                  href="/tutors?language=bangla"
-                  onClick={handleNavClick}
-                  className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground transition hover:border-primary/30 hover:text-primary"
-                >
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                  Bangla Speaking Tutors
-                </Link>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <Link
+                      href="/tutors?subject=web-development"
+                      onClick={handleNavClick}
+                      className="flex items-center gap-3 rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground transition hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
+                    >
+                      <BookOpen className="h-4 w-4 text-muted-foreground" />
+                      Web Development
+                    </Link>
 
-                <Link
-                  href="/help"
-                  onClick={handleNavClick}
-                  className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground transition hover:border-primary/30 hover:text-primary"
-                >
-                  <LifeBuoy className="h-4 w-4 text-muted-foreground" />
-                  Help Center
-                </Link>
-              </div>
+                    <Link
+                      href="/tutors?subject=english"
+                      onClick={handleNavClick}
+                      className="flex items-center gap-3 rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground transition hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
+                    >
+                      <BookOpen className="h-4 w-4 text-muted-foreground" />
+                      English Tutors
+                    </Link>
+
+                    <Link
+                      href="/tutors?language=bangla"
+                      onClick={handleNavClick}
+                      className="flex items-center gap-3 rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground transition hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
+                    >
+                      <Users className="h-4 w-4 text-muted-foreground" />
+                      Bangla Tutors
+                    </Link>
+
+                    <Link
+                      href="/help"
+                      onClick={handleNavClick}
+                      className="flex items-center gap-3 rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground transition hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
+                    >
+                      <LifeBuoy className="h-4 w-4 text-muted-foreground" />
+                      Help Center
+                    </Link>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>

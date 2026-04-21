@@ -202,41 +202,41 @@ export default function AdminDashboard() {
   ];
 
   const chartData: ChartItem[] = useMemo(() => {
-  const bookings = bookingsData?.bookings ?? [];
-  if (!bookings.length) return [];
+    const bookings = bookingsData?.bookings ?? [];
+    if (!bookings.length) return [];
 
-  const grouped = bookings.reduce<
-    Record<string, { sortKey: string; label: string; bookings: number; revenue: number }>
-  >((acc, booking) => {
-    const date = new Date(booking.bookingDate);
-    const sortKey = date.toISOString().split("T")[0];
+    const grouped = bookings.reduce<
+      Record<string, { sortKey: string; label: string; bookings: number; revenue: number }>
+    >((acc, booking) => {
+      const date = new Date(booking.bookingDate);
+      const sortKey = date.toISOString().split("T")[0];
 
-    if (!acc[sortKey]) {
-      acc[sortKey] = {
-        sortKey,
-        label: date.toLocaleDateString("en-US", {
-          month: "short",
-          day: "2-digit",
-        }),
-        bookings: 0,
-        revenue: 0,
-      };
-    }
+      if (!acc[sortKey]) {
+        acc[sortKey] = {
+          sortKey,
+          label: date.toLocaleDateString("en-US", {
+            month: "short",
+            day: "2-digit",
+          }),
+          bookings: 0,
+          revenue: 0,
+        };
+      }
 
-    acc[sortKey].bookings += 1;
-    acc[sortKey].revenue += Number(booking.totalPrice ?? 0);
+      acc[sortKey].bookings += 1;
+      acc[sortKey].revenue += Number(booking.totalPrice ?? 0);
 
-    return acc;
-  }, {});
+      return acc;
+    }, {});
 
-  return Object.values(grouped)
-    .sort((a, b) => a.sortKey.localeCompare(b.sortKey))
-    .map(({ label, bookings, revenue }) => ({
-      label,
-      bookings,
-      revenue,
-    }));
-}, [bookingsData]);
+    return Object.values(grouped)
+      .sort((a, b) => a.sortKey.localeCompare(b.sortKey))
+      .map(({ label, bookings, revenue }) => ({
+        label,
+        bookings,
+        revenue,
+      }));
+  }, [bookingsData]);
 
   const revenueSummary = useMemo(() => {
     const bookings = bookingsData?.bookings ?? [];
@@ -269,9 +269,8 @@ export default function AdminDashboard() {
     <div className="flex h-screen overflow-hidden bg-background text-foreground">
       {/* Sidebar */}
       <aside
-        className={`${
-          sideOpen ? "w-60" : "w-[68px]"
-        } flex shrink-0 flex-col overflow-hidden border-r border-border bg-card transition-all duration-300`}
+        className={`${sideOpen ? "w-60" : "w-[68px]"
+          } flex shrink-0 flex-col overflow-hidden border-r border-border bg-card transition-all duration-300`}
       >
         <div className="flex h-[68px] items-center border-b border-border px-4">
           <Link href="/" className="flex items-center gap-3">
@@ -291,11 +290,10 @@ export default function AdminDashboard() {
             <button
               key={id}
               onClick={() => setActive(id)}
-              className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
-                active === id
+              className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${active === id
                   ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
+                }`}
             >
               <Icon className="h-4 w-4 shrink-0" />
               {sideOpen && <span className="flex-1 text-left whitespace-nowrap">{label}</span>}
@@ -406,11 +404,10 @@ export default function AdminDashboard() {
                         <Icon className="h-5 w-5" />
                       </div>
                       <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                          positive
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${positive
                             ? "bg-emerald-100 text-emerald-600"
                             : "bg-muted text-muted-foreground"
-                        }`}
+                          }`}
                       >
                         {change}
                       </span>

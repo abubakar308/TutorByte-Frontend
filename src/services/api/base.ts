@@ -39,7 +39,7 @@ export async function getAuthHeader() {
   const refreshToken = cookieStore.get("refreshToken")?.value;
 
   const headers: Record<string, string> = {
-    "Content-Type": "application/json",
+    // "Content-Type" will be added dynamically in apiRequest
   };
 
   // if (accessToken) {
@@ -83,15 +83,21 @@ export async function apiRequest<T = unknown>(
 
     const baseHeaders = auth
       ? await getAuthHeader()
-      : { "Content-Type": "application/json" };
+      : {};
+
+    // Dynamically set Content-Type to application/json if body is not FormData
+    const isFormData = restOptions.body instanceof FormData;
+    
+    const finalHeaders: Record<string, string> = {
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
+      ...baseHeaders,
+      ...(customHeaders as Record<string, string> || {}),
+    };
 
     const res = await fetch(`${API_URL}${endpoint}`, {
       ...restOptions,
       credentials: "include",
-      headers: {
-        ...baseHeaders,
-        ...(customHeaders || {}),
-      },
+      headers: finalHeaders,
       cache: "no-store",
     });
 

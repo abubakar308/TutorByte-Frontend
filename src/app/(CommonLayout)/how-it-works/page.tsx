@@ -16,12 +16,12 @@ type HowItWorksContent = {
 
 async function getHowItWorksContent(): Promise<HowItWorksContent | null> {
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/page-content/how-it-works`,
-      {
-        next: { revalidate: 60 },
-      }
-    );
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (!baseUrl) return null;
+
+    const res = await fetch(`${baseUrl}/page-content/how-it-works`, {
+      next: { revalidate: 60 },
+    });
 
     if (!res.ok) {
       throw new Error("Failed to fetch how it works content");

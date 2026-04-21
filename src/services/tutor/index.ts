@@ -89,7 +89,7 @@ export const updateTutorProfile = async (
   data: Partial<TutorProfile>
 ): Promise<ApiResponse<TutorProfile>> => {
   await requireRole("TUTOR");
-  return apiRequest<TutorProfile>("/tutors/me", {
+  return apiRequest<TutorProfile>("/tutors/profile", {
     method: "PATCH",
     body: JSON.stringify(data),
   });
@@ -103,6 +103,18 @@ export const updateTutorProfileById = async (
   return apiRequest<TutorProfile>(`/tutors/${tutorId}`, {
     method: "PATCH",
     body: JSON.stringify(data),
+  });
+};
+
+export const uploadTutorAvatar = async (
+  file: File
+): Promise<ApiResponse<{ avatarUrl: string }>> => {
+  const formData = new FormData();
+  formData.append("avatar", file);
+
+  return apiRequest<{ avatarUrl: string }>("/users/upload-avatar", {
+    method: "POST",
+    body: formData,
   });
 };
 

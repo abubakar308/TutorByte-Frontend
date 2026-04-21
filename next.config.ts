@@ -9,10 +9,14 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/api/**",
       },
-      // অন্যান্য ডোমেইন থাকলে এখানে যোগ করুন (যেমন Google বা Cloudinary)
       {
         protocol: "https",
         hostname: "lh3.googleusercontent.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
         pathname: "/**",
       },
     ],

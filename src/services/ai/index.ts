@@ -95,7 +95,7 @@ export interface IChatMessage {
 }
 
 export const getAIChatReply = async (messages: IChatMessage[]) => {
-  return apiRequest<any>("/ai-chat", {
+  return apiRequest<any>("/ai/ai-chat", {
     method: "POST",
     body: JSON.stringify({ messages }),
   });

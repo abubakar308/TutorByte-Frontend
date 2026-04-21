@@ -1,5 +1,6 @@
 import Footer from "@/components/ui/shared/Footer";
 import Navbar from "@/components/ui/shared/Navbar";
+import FloatingChatBot from "@/components/ui/ai/FloatingChatBot";
 import { getCurrentUser } from "@/services/auth";
 
 export default async function CommonLayout({
@@ -12,9 +13,10 @@ export default async function CommonLayout({
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-        <Navbar user={user} />
+      <Navbar user={user} />
       <main className="flex-1">{children}</main>
       <Footer />
+      <FloatingChatBot />
     </div>
   );
 }

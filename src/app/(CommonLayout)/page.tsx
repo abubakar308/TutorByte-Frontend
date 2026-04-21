@@ -8,6 +8,7 @@ import BlogPreviewSection from "@/components/ui/home/BlogPreviewSection";
 import WhyChooseTutorByteSection from "@/components/ui/home/WHyChooseTutorbyte";
 import FaqSection from "@/components/ui/home/FaqSection";
 import TestimonialsSection from "@/components/ui/home/TestimonialsSection";
+import ChatBot from "@/components/ui/ai/ChatBot";
 
 export default function HomePage() {
   return (
